@@ -1,6 +1,11 @@
 from ninja import NinjaAPI, Schema
+from ninja.security import django_auth
 
-api = NinjaAPI(title="Buditel API", version="0.1.0")
+from apps.accounts.api import router as auth_router
+
+# Authenticated by default; public endpoints opt out with auth=None.
+api = NinjaAPI(title="Buditel API", version="0.1.0", auth=django_auth)
+api.add_router("/auth", auth_router)
 
 
 class HealthOut(Schema):

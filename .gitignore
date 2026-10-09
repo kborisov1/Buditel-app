@@ -4,3 +4,16 @@ CLAUDE.md
 .env
 .env.*
 backups/
+
+# Build and tooling output
+.venv/
+__pycache__/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+node_modules/
+dist/
+media/
+backend/openapi.json
+!.env.example
+*.tsbuildinfo

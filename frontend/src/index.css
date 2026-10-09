@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+/* Theme tokens (architecture 8): parchment, cappuccino, mocha. Retune colors here only. */
+@theme {
+  --color-parchment: #f4ead5;
+  --color-cappuccino: #c8a57a;
+  --color-mocha: #4a3326;
+  --font-serif: "Source Serif 4", serif;
+  --font-sans: system-ui, sans-serif;
+}
+
+body {
+  background: var(--color-parchment);
+  color: var(--color-mocha);
+  font-family: var(--font-sans);
+}

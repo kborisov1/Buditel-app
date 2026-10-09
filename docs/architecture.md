@@ -103,7 +103,11 @@ Business rules live in plain service modules inside each app (for example `progr
 - `Phase`: name, start and end dates (timeline bands, may overlap). An event's phase is derived from its date, not stored.
 - `Track`: name, order. `TrackEntry`: track, event, position. An event can appear in several tracks.
 - `Gate` and `GateRequirement`: an event unlocked only after listed other events are read and passed.
-- `Question`: entry FK, type (`multiple_choice`, `true_false`, `date_ordering`, `fill_blank`), `payload` JSONB, explanation. Payload shape depends on type and is validated with Pydantic models on save.
+- `Question`: entry FK, type (`multiple_choice`, `true_false`, `date_ordering`, `fill_blank`), prompt, `payload` JSONB, explanation. Payload shape depends on type and is validated with Pydantic models on save:
+  - `multiple_choice`: `{"options": [2-6 unique strings], "correct": index}`, exactly one correct option.
+  - `true_false`: `{"answer": bool}`, whether the prompt statement is true.
+  - `date_ordering`: `{"items": [3-6 unique strings]}`, stored in the correct chronological order and shuffled when shown.
+  - `fill_blank`: `{"answers": [1-10 accepted strings]}`. The prompt contains exactly one blank (`___`). Grading ignores case, extra whitespace and punctuation.
 - `AppSetting`: key and value rows for tunables (finale percentage, XP values, pass mark, level curve).
 
 **Per-user tables**
@@ -207,7 +211,8 @@ The stock Django admin, extended. All admin text is English.
 **Custom pieces to build:**
 
 - Markdown field with live preview, using the shared renderer.
-- Publish guard: model validation blocks `status=published` when the entry has fewer than 6 questions.
+- Publish guard: the entry page's question formset blocks `status=published` when the entry would have fewer than 6 questions (it sees questions added or deleted in the same save, which `Entry.clean()` cannot). Questions are added and deleted only on the entry page; the all-questions view is browse and edit only, so the guard cannot be bypassed.
+- Question editing through plain per-type fields (options one per line with `*` marking the correct one, a true/false choice, items one per line, accepted answers one per line), converted to the JSON payload on save.
 - Track and gate editing with ordering (drag-and-drop or a position field), plus the same-year `year_order`.
 - **Unlock graph view:** a read-only page that builds the dependency graph from tracks and gates, draws it (D3 or Mermaid-style SVG), and flags unreachable entries (no path from any track start) and cycles. Optional for the first ~10 events, wanted as content grows.
 - User tools: reset progress, shift date forward, as admin actions on the user page.

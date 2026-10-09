@@ -104,9 +104,9 @@ The author can define gate events in the admin panel: an event that unlocks only
 
 1. User opens an unlocked entry and reads it.
 2. User clicks a **"Finished reading"** button. This is the gate to the quiz, not scrolling or time spent.
-3. A quiz is drawn randomly from the entry's question pool: **always exactly 5 questions** (the minimum pool of 6 guarantees this). Questions the user previously missed are favored.
+3. A quiz is drawn randomly from the entry's question pool: **always exactly 5 questions** (the minimum pool of 6 guarantees this). Questions the user previously missed are favored: each counts **3 times** in the draw (admin setting).
 4. All questions are answered first, then graded at the end.
-5. **Pass mark: 80%**, which means **4 of 5** correct.
+5. **Pass mark: 80%**, which means **4 of 5** correct. The percentage is an admin setting.
 6. The quiz must be passed to mark the entry as **read** (this is what unlocks the next entries and counts for progress).
 7. The user may leave and come back. The entry stays **"in progress"**.
 8. **On fail:** only the score is shown. No correct answers are revealed. The user is told to re-read, then can retry.
@@ -133,7 +133,7 @@ The author can define gate events in the admin panel: an event that unlocks only
 ## 6. XP, Levels, Streaks, Goals
 
 ### 6.1 XP
-- XP is weighted by activity type. Starting values:
+- XP is weighted by activity type. Each value is an admin setting. Starting values:
   - First-time post-reading quiz pass: **50 XP** (flat, not score-scaled).
   - Quiz retake: **5 XP**.
   - Correct answer in review or practice: **2 XP**.

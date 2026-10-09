@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "typecheck": "tsc -b --noEmit",
     "test": "vitest run",
-    "types": "openapi-typescript ../backend/openapi.json -o src/api/schema.d.ts"
+    "types": "openapi-typescript ../backend/openapi.json -o src/api/schema.d.ts",
+    "build:admin-preview": "vite build --config vite.admin-preview.config.ts"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.104.1",
@@ -18,6 +19,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-i18next": "^17.0.16",
+    "react-markdown": "^10.1.0",
     "react-router-dom": "^7.18.4"
   },
   "devDependencies": {

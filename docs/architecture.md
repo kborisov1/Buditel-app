@@ -137,6 +137,9 @@ All rules run on the server. The client only displays results.
 - The first event of every non-opening track additionally requires all events of the **opening** track (Awakening) to be `read`.
 - A **non-event entry** is unlocked once any linked event is `read`.
 - The **Finale** track's first event unlocks when, in every other track, the user has read at least `ceil(pct * event_count)` events, where `pct` comes from `AppSetting` (default 80%).
+- An event in no track has no order constraint: it unlocks once its gate requirements are read, or immediately if it has none. The unlock graph view should flag such events.
+- Only **published** entries take part. Drafts are never unlocked, and a draft event is skipped in track order, gate requirements, relations and the finale count, so an unpublished event never blocks learners.
+- The engine lives in `progress/unlock.py`: a pure function over an in-memory graph and the user's set of read entry IDs, plus a loader that builds the graph from the database.
 - With about 50 entries, the full unlock state for a user is computed per request from three small queries (progress, track order, gates). No cache is needed in v1. If it becomes slow, the cache key is the user's last progress timestamp.
 - **Locked entry responses** contain only the fields allowed by scope 3.4 (title, plus date for timeline). The body is never serialized, so nothing leaks through the network tab. Separate serializers for locked and unlocked entries make this hard to get wrong.
 

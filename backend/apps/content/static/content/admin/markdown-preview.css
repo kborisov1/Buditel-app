@@ -38,3 +38,24 @@
   color: #b00020;
   background: #fde7e9;
 }
+
+.markdown-editor__preview .entry-image {
+  display: block;
+  margin: 1rem 0;
+}
+
+.markdown-editor__preview .entry-image img {
+  display: block;
+  max-width: 100%;
+}
+
+.markdown-editor__preview .entry-image-caption {
+  display: block;
+  font-size: 0.875rem;
+  font-style: italic;
+}
+
+.markdown-editor__preview .entry-image-missing {
+  color: #b00020;
+  background: #fde7e9;
+}

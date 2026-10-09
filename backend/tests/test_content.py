@@ -9,6 +9,7 @@ from django.test import Client
 
 from apps.content.models import Entry, Source
 from apps.content.rules import entry_field_errors
+from tests.helpers import EMPTY_INLINES
 
 
 def _event(**overrides: object) -> Entry:
@@ -88,9 +89,9 @@ def test_admin_change_page_has_markdown_preview(admin_client: Client) -> None:
     page = admin_client.get(f"/admin/content/entry/{entry.pk}/change/").content.decode()
     assert 'data-markdown-preview="id_body_md"' in page
     assert "content/admin/markdown-preview.js" in page
-    links_json = re.search(r'id="id_body_md-links"[^>]*>(.*?)</script>', page)
-    assert links_json is not None
-    assert json.loads(links_json.group(1))["istoriya"] == {
+    refs_json = re.search(r'id="id_body_md-refs"[^>]*>(.*?)</script>', page)
+    assert refs_json is not None
+    assert json.loads(refs_json.group(1))["links"]["istoriya"] == {
         "title": "История славянобългарска",
         "href": f"/admin/content/entry/{entry.pk}/change/",
     }
@@ -107,10 +108,7 @@ def test_admin_add_rejects_invalid_event(admin_client: Client) -> None:
             "summary": "x",
             "date_certainty": "exact",
             "year_order": 0,
-            "sources-TOTAL_FORMS": 0,
-            "sources-INITIAL_FORMS": 0,
-            "questions-TOTAL_FORMS": 0,
-            "questions-INITIAL_FORMS": 0,
+            **EMPTY_INLINES,
         },
     )
     assert response.status_code == 200

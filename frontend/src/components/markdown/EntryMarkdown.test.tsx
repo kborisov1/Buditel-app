@@ -45,3 +45,24 @@ test("handles several links in one paragraph and inside emphasis", () => {
 test("does not render raw HTML", () => {
   expect(html("<script>alert(1)</script>")).not.toContain("<script>");
 });
+
+const images = { "1": { src: "/media/entries/p.jpg", caption: "Паисий", credit: "Public domain" } };
+
+test("renders an inline image with caption and credit", () => {
+  const out = render(<EntryMarkdown body={"Текст ![[1]] край"} links={links} images={images} />)
+    .container.innerHTML;
+  expect(out).toContain('<img src="/media/entries/p.jpg" alt="Паисий">');
+  expect(out).toContain("(Public domain)");
+  expect(out).toContain(" край");
+});
+
+test("flags an unknown image position", () => {
+  expect(html("![[3]]")).toContain('<span class="entry-image-missing">![[3]]</span>');
+});
+
+test("keeps an image and a link apart", () => {
+  const out = render(<EntryMarkdown body={"![[1]] [[paisiy]]"} links={links} images={images} />)
+    .container.innerHTML;
+  expect(out).toContain("<img");
+  expect(out).toContain('class="entry-link"');
+});

@@ -98,8 +98,9 @@ Business rules live in plain service modules inside each app (for example `progr
 **Content tables** (authored through admin)
 
 - `Entry`: type, slug, title, summary, `body_md`, event date, `date_certainty` (exact, approximate, estimated), `date_note_old_style`, region, importance (events only), `year_order` (explicit order within a year), status (draft, published).
-- `EntryRelation`: structured links between entries. `[[entry-name]]` links in the body are resolved against slugs at serve time.
-- `Source`: citations per entry. `Image`: file, caption, credit, license note.
+- `EntryRelation`: structured links between entries. Relations are symmetric and untyped: each link is stored as a mirrored pair of rows (A to B and B to A), kept in sync by the model, so each entry's admin page and related sidebar list it. Grouping (people, places and so on) comes from the target's entry type. Only these relations count as "linked" for unlocking (scope 3.4). `[[entry-name]]` links in the body are resolved against slugs at serve time and never affect unlocking.
+- `Source`: citations per entry.
+- `Image`: file (validated with Pillow, width and height recorded), position (unique per entry), caption, credit, license note. Images form an ordered gallery, and the first one is the main image. The body can also place an image inline with `![[position]]`.
 - `Phase`: name, start and end dates (timeline bands, may overlap). An event's phase is derived from its date, not stored.
 - `Track`: name, order. `TrackEntry`: track, event, position. An event can appear in several tracks.
 - `Gate` and `GateRequirement`: an event unlocked only after listed other events are read and passed.
@@ -198,7 +199,7 @@ The time zone is stored per user, with a default of the browser's zone captured 
 
 **i18n.** `react-i18next` from the start with a single `bg.json`. All UI strings go through it, so additional languages later only add files.
 
-**Markdown rendering.** `react-markdown` with a small remark plugin for `[[entry-name]]` links, where `entry-name` is the target's slug. `[[slug|label]]` overrides the displayed text (useful for Bulgarian grammatical forms); otherwise the target's title is shown. The server returns the body with links resolved to entry IDs, and locked targets are rendered as plain titles. Raw HTML in the body is not rendered. The same rendering code is bundled as a small script for the admin preview (`make admin-assets`, output git-ignored), so preview matches production. In the admin preview every slug resolves to the target's admin page, and unknown slugs are highlighted.
+**Markdown rendering.** `react-markdown` with a small remark plugin for `[[entry-name]]` links, where `entry-name` is the target's slug. `[[slug|label]]` overrides the displayed text (useful for Bulgarian grammatical forms); otherwise the target's title is shown. The server returns the body with links resolved to entry IDs, and locked targets are rendered as plain titles. `![[position]]` places the entry's image with that position inline, with its caption and credit. Raw HTML in the body is not rendered. The same rendering code is bundled as a small script for the admin preview (`make admin-assets`, output git-ignored), so preview matches production. In the admin preview every slug resolves to the target's admin page, saved images are available by position, and unknown slugs or positions are highlighted.
 
 ---
 

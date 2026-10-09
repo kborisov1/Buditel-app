@@ -15,3 +15,7 @@ make frontend          # http://127.0.0.1:5173
 ```
 
 Other targets: `make test`, `make lint`, `make types`, `make backup`.
+
+## Accounts
+
+There is no signup (scope 8). Create the owner with `cd backend && uv run python manage.py createsuperuser`, then add learner accounts in `/admin/`. Learners log in with their **email**, so set it on every account and keep it unique.

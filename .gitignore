@@ -1,0 +1,6 @@
+# Project rules: keep local-only and sensitive files out of the repository
+CLAUDE.md
+.DS_Store
+.env
+.env.*
+backups/

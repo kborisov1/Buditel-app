@@ -109,6 +109,8 @@ def test_admin_add_rejects_invalid_event(admin_client: Client) -> None:
             "year_order": 0,
             "sources-TOTAL_FORMS": 0,
             "sources-INITIAL_FORMS": 0,
+            "questions-TOTAL_FORMS": 0,
+            "questions-INITIAL_FORMS": 0,
         },
     )
     assert response.status_code == 200

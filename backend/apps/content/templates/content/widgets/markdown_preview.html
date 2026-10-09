@@ -1,7 +1,7 @@
 <div class="markdown-editor">
   <div class="markdown-editor__input">{% include "django/forms/widgets/textarea.html" %}</div>
-  <div class="markdown-editor__preview" data-markdown-preview="{{ widget.attrs.id }}" data-links="{{ widget.links_id }}">
+  <div class="markdown-editor__preview" data-markdown-preview="{{ widget.attrs.id }}" data-refs="{{ widget.refs_id }}">
     Preview unavailable: run <code>make admin-assets</code> to build it.
   </div>
-  {{ widget.links|json_script:widget.links_id }}
+  {{ widget.refs|json_script:widget.refs_id }}
 </div>

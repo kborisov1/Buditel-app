@@ -206,6 +206,8 @@ Primary action: one **"Start today's session"** button that builds a queue: due 
 ### 7.3 Library
 - Lists of people, events, places, institutions, works, and concepts.
 - Filterable by theme, period, and region, and searchable by name.
+- Only events have themes (tracks) and dates, so other entry types match a theme or period filter through their linked events.
+- Filters match locked entries too. They still appear as title only.
 - Locked entries appear as title only.
 
 ### 7.4 Entry page

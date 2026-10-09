@@ -89,6 +89,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/entries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Entries */
+        get: operations["apps_content_api_list_entries"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/entries/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Entry */
+        get: operations["apps_content_api_get_entry"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/entries/{slug}/finished-reading": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Finished Reading */
+        post: operations["apps_content_api_finished_reading"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -117,6 +168,161 @@ export interface components {
             password: string;
             /** Time Zone */
             time_zone?: string | null;
+        };
+        /**
+         * Type
+         * @enum {string}
+         */
+        Type: "event" | "person" | "place" | "institution" | "work" | "concept";
+        /** EntrySummaryOut */
+        EntrySummaryOut: {
+            /**
+             * Locked
+             * @default false
+             * @constant
+             */
+            locked: false;
+            /** Id */
+            id: number;
+            /** Slug */
+            slug: string;
+            /** Type */
+            type: string;
+            /** Title */
+            title: string;
+            /** Summary */
+            summary: string;
+            /** Event Date */
+            event_date: string | null;
+            /** Date Certainty */
+            date_certainty: string;
+            /** Region */
+            region: string;
+            /** Importance */
+            importance: string;
+            /** Progress */
+            progress: string | null;
+        };
+        /**
+         * LockedEntryOut
+         * @description Title only, plus the date that the timeline shows for locked events (scope 3.4).
+         */
+        LockedEntryOut: {
+            /**
+             * Locked
+             * @default true
+             * @constant
+             */
+            locked: true;
+            /** Id */
+            id: number;
+            /** Slug */
+            slug: string;
+            /** Type */
+            type: string;
+            /** Title */
+            title: string;
+            /** Event Date */
+            event_date: string | null;
+        };
+        /** EntryDetailOut */
+        EntryDetailOut: {
+            /**
+             * Locked
+             * @default false
+             * @constant
+             */
+            locked: false;
+            /** Id */
+            id: number;
+            /** Slug */
+            slug: string;
+            /** Type */
+            type: string;
+            /** Title */
+            title: string;
+            /** Summary */
+            summary: string;
+            /** Event Date */
+            event_date: string | null;
+            /** Date Certainty */
+            date_certainty: string;
+            /** Region */
+            region: string;
+            /** Importance */
+            importance: string;
+            /** Progress */
+            progress: string | null;
+            /** Body Md */
+            body_md: string;
+            /** Date Note Old Style */
+            date_note_old_style: string;
+            /** Tracks */
+            tracks: string[];
+            /** Phases */
+            phases: string[];
+            /** Images */
+            images: components["schemas"]["ImageOut"][];
+            /** Sources */
+            sources: components["schemas"]["SourceOut"][];
+            /** Related */
+            related: components["schemas"]["RelatedOut"][];
+            /** Links */
+            links: {
+                [key: string]: components["schemas"]["LinkOut"];
+            };
+        };
+        /** ImageOut */
+        ImageOut: {
+            /** Position */
+            position: number;
+            /** Src */
+            src: string;
+            /** Width */
+            width: number | null;
+            /** Height */
+            height: number | null;
+            /** Caption */
+            caption: string;
+            /** Credit */
+            credit: string;
+            /** License Note */
+            license_note: string;
+        };
+        /**
+         * LinkOut
+         * @description A [[slug]] target in the body. Locked targets render as plain titles.
+         */
+        LinkOut: {
+            /** Title */
+            title: string;
+            /** Locked */
+            locked: boolean;
+        };
+        /** RelatedOut */
+        RelatedOut: {
+            /** Id */
+            id: number;
+            /** Slug */
+            slug: string;
+            /** Type */
+            type: string;
+            /** Title */
+            title: string;
+            /** Locked */
+            locked: boolean;
+        };
+        /** SourceOut */
+        SourceOut: {
+            /** Citation */
+            citation: string;
+            /** Url */
+            url: string;
+        };
+        /** ProgressOut */
+        ProgressOut: {
+            /** State */
+            state: string;
         };
     };
     responses: never;
@@ -223,6 +429,76 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UserOut"];
+                };
+            };
+        };
+    };
+    apps_content_api_list_entries: {
+        parameters: {
+            query?: {
+                type?: components["schemas"]["Type"] | null;
+                track?: number | null;
+                phase?: number | null;
+                region?: string | null;
+                q?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": (components["schemas"]["EntrySummaryOut"] | components["schemas"]["LockedEntryOut"])[];
+                };
+            };
+        };
+    };
+    apps_content_api_get_entry: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EntryDetailOut"] | components["schemas"]["LockedEntryOut"];
+                };
+            };
+        };
+    };
+    apps_content_api_finished_reading: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProgressOut"];
                 };
             };
         };

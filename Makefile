@@ -4,11 +4,12 @@ export
 BACKEND = cd backend && uv run
 STAMP = $(shell date +%Y%m%d-%H%M%S)
 
-.PHONY: install db backend frontend types test lint backup seed
+.PHONY: install db backend frontend admin-assets types test lint backup seed
 
 install:
 	cd backend && uv sync
 	cd frontend && npm install
+	$(MAKE) admin-assets
 
 db:
 	docker compose up -d db
@@ -19,6 +20,10 @@ backend:
 
 frontend:
 	cd frontend && npm run dev
+
+# Admin Markdown preview bundle, built from the shared frontend renderer (architecture 8).
+admin-assets:
+	cd frontend && npm run build:admin-preview
 
 types:
 	$(BACKEND) python manage.py export_openapi_schema --api config.api.api --output openapi.json

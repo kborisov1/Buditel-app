@@ -17,3 +17,4 @@ media/
 backend/openapi.json
 !.env.example
 *.tsbuildinfo
+backend/apps/content/static/content/admin/markdown-preview.js

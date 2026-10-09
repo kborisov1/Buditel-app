@@ -194,7 +194,7 @@ The time zone is stored per user, with a default of the browser's zone captured 
 
 **i18n.** `react-i18next` from the start with a single `bg.json`. All UI strings go through it, so additional languages later only add files.
 
-**Markdown rendering.** `react-markdown` with a small remark plugin for `[[entry-name]]` links. The server returns the body with links resolved to entry IDs, and locked targets are rendered as plain titles. The same rendering code is bundled as a small script for the admin preview, so preview matches production.
+**Markdown rendering.** `react-markdown` with a small remark plugin for `[[entry-name]]` links, where `entry-name` is the target's slug. `[[slug|label]]` overrides the displayed text (useful for Bulgarian grammatical forms); otherwise the target's title is shown. The server returns the body with links resolved to entry IDs, and locked targets are rendered as plain titles. Raw HTML in the body is not rendered. The same rendering code is bundled as a small script for the admin preview (`make admin-assets`, output git-ignored), so preview matches production. In the admin preview every slug resolves to the target's admin page, and unknown slugs are highlighted.
 
 ---
 
@@ -244,6 +244,7 @@ Title search (scope 7) uses a Postgres `pg_trgm` index with `ILIKE` and similari
 | `make db` | `docker compose up -d db` |
 | `make backend` | migrate, then `runserver` on `127.0.0.1:8000` |
 | `make frontend` | Vite dev server on `127.0.0.1:5173`, proxying to Django |
+| `make admin-assets` | build the admin Markdown preview bundle into Django static (also run by `make install`) |
 | `make types` | regenerate frontend API types from the OpenAPI schema |
 | `make test` | backend pytest, frontend unit tests |
 | `make backup` | `pg_dump` to `backups/` with a timestamp, plus a copy of `media/` |

@@ -1,26 +1,31 @@
-import { useTranslation } from "react-i18next";
+import { Route, Routes } from "react-router-dom";
+import Layout from "./components/layout/Layout";
 import LoginPage from "./features/auth/LoginPage";
-import { useLogout, useMe } from "./features/auth/useAuth";
+import { useMe } from "./features/auth/useAuth";
+import DashboardPage from "./features/dashboard/DashboardPage";
+import EntryPage from "./features/entry/EntryPage";
+import LibraryPage from "./features/library/LibraryPage";
+import PlaceholderPage from "./features/placeholder/PlaceholderPage";
+import QuizPage from "./features/quiz/QuizPage";
+import TimelinePage from "./features/timeline/TimelinePage";
 
 export default function App() {
-  const { t } = useTranslation();
   const me = useMe();
-  const logout = useLogout();
 
   if (me.isPending) return null;
   if (!me.data) return <LoginPage />;
 
   return (
-    <main className="mx-auto max-w-3xl p-8">
-      <h1 className="font-serif text-4xl">{t("app.name")}</h1>
-      <p>{t("app.tagline")}</p>
-      <p className="mt-4">{me.data.email}</p>
-      <button
-        onClick={() => logout.mutate()}
-        className="mt-4 rounded border border-mocha px-3 py-1"
-      >
-        {t("auth.logout")}
-      </button>
-    </main>
+    <Routes>
+      <Route element={<Layout />}>
+        <Route index element={<DashboardPage />} />
+        <Route path="timeline" element={<TimelinePage />} />
+        <Route path="library" element={<LibraryPage />} />
+        <Route path="entries/:slug" element={<EntryPage />} />
+        <Route path="entries/:slug/quiz" element={<QuizPage />} />
+        <Route path="practice" element={<PlaceholderPage name="practice" />} />
+        <Route path="profile" element={<PlaceholderPage name="profile" />} />
+      </Route>
+    </Routes>
   );
 }

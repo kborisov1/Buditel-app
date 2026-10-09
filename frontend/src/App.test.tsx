@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { afterEach, expect, test, vi } from "vitest";
 import App from "./App";
 import "./i18n";
@@ -8,7 +9,9 @@ function renderApp() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
     <QueryClientProvider client={client}>
-      <App />
+      <MemoryRouter>
+        <App />
+      </MemoryRouter>
     </QueryClientProvider>,
   );
 }
@@ -23,7 +26,12 @@ test("shows the login form when not authenticated", async () => {
 
 test("shows the user when authenticated", async () => {
   const user = { id: 1, email: "a@b.bg", time_zone: "UTC", is_admin: false };
-  vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json(user)));
+  vi.stubGlobal(
+    "fetch",
+    vi.fn().mockImplementation((url: string) =>
+      Promise.resolve(Response.json(url.endsWith("/auth/me") ? user : [])),
+    ),
+  );
   renderApp();
   expect(await screen.findByText("a@b.bg")).toBeTruthy();
 });

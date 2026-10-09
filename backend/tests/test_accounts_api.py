@@ -92,3 +92,15 @@ def test_invalid_time_zone_ignored(user: User) -> None:
     _login(client, token, time_zone="Not/AZone")
     user.profile.refresh_from_db()  # type: ignore[attr-defined]
     assert user.profile.time_zone == "UTC"  # type: ignore[attr-defined]
+
+
+def test_login_accepts_vite_dev_origin(user: User) -> None:
+    client = _client()
+    token = _with_csrf(client)
+    response = client.post(
+        "/api/auth/login",
+        {"email": "learner@example.com", "password": PASSWORD},
+        content_type="application/json",
+        headers={"X-CSRFToken": token, "Origin": "http://127.0.0.1:5173"},
+    )
+    assert response.status_code == 200

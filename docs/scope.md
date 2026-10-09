@@ -94,6 +94,7 @@ The author can define gate events in the admin panel: an event that unlocks only
   - Lists: title only.
   - Related sidebar: title only.
 - Locked entries cannot be read.
+- An entry the user has already read stays readable, even if the author later reorders a track or adds gates.
 - Admin tool to visualize the unlock graph to catch unreachable or stuck entries. Wanted once content grows. For the initial ~10 events it is optional.
 - **Finale threshold:** the Finale unlocks when the user has read at least **80% of the events in every track**, rounded up. The percentage is an admin setting so it can be tuned as content grows.
 

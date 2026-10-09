@@ -59,6 +59,8 @@ def unlocked_ids(graph: UnlockGraph, read: set[int]) -> set[int]:
 
     unlocked = {e for e in graph.events - blocked if graph.gates.get(e, frozenset()) <= read}
     unlocked |= {e for e in graph.others if graph.links.get(e, frozenset()) & read}
+    # A read entry stays readable after the author reorders tracks or adds gates.
+    unlocked |= read & (graph.events | graph.others)
     return unlocked
 
 

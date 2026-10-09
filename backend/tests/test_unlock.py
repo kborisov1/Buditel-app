@@ -49,9 +49,14 @@ def test_strict_order_within_track() -> None:
     assert unlocked_ids(g, {1, 2, 3}) == {1, 2, 3}
 
 
-def test_reading_out_of_order_does_not_skip() -> None:
-    g = graph(TrackOrder(OPENING, (1, 2, 3)))
-    assert unlocked_ids(g, {2}) == {1, 3}
+def test_read_entries_stay_unlocked_after_reorder() -> None:
+    g = graph(TrackOrder(OPENING, (1, 2, 3)), others={100}, gates={3: frozenset({50})})
+    assert unlocked_ids(g, {3, 100}) == {1, 3, 100}
+
+
+def test_read_draft_is_not_unlocked() -> None:
+    g = graph(TrackOrder(OPENING, (1,)))
+    assert unlocked_ids(g, {1, 99}) == {1}
 
 
 def test_regular_tracks_wait_for_whole_opening_track() -> None:
@@ -211,6 +216,7 @@ def test_draft_gate_requirement_is_ignored(user: User) -> None:
 def test_drafts_are_never_unlocked(user: User, opening: Track) -> None:
     draft = _entry("draft", published=False)
     _place(opening, draft)
+    _read(user, draft)
     assert not is_unlocked(user, draft.pk)
 
 

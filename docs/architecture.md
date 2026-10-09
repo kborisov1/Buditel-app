@@ -147,9 +147,9 @@ All rules run on the server. The client only displays results.
 ### 6.2 Reading and quiz (scope 4)
 
 1. "Finished reading" sets the progress row to `in_progress` with a timestamp and enables the quiz.
-2. Starting a quiz draws 5 questions from the entry's pool, weighting questions the user previously missed. The server stores the attempt with the chosen IDs.
+2. Starting a quiz requires "Finished reading" and an unlocked entry. It draws 5 questions from the entry's pool without replacement, giving questions the user has a `QuestionState` for the weight `quiz_missed_weight` (weighted random keys). The server stores the attempt with the chosen IDs.
 3. The client sends all answers at once. The server grades, then stores the result.
-4. On fail, the response contains only the score. On pass (4 of 5), it contains explanations and correct answers, the entry becomes `read`, and XP is awarded. A first pass gives 50 XP; later passes give 5.
+4. On fail, the response contains only the score. On pass (`quiz_pass_percentage`, 4 of 5 by default), it contains explanations and correct answers, the entry becomes `read`, and XP is awarded. A first pass (the entry was not yet `read`) gives `xp_quiz_first_pass` and increments the older-event counter; later passes give `xp_quiz_retake`.
 5. Correct answers are never sent before submission, and not at all on a failed attempt.
 6. Wrong answers create or reset a `QuestionState` row.
 

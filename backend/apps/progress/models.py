@@ -30,3 +30,30 @@ class EntryProgress(models.Model):
 
     def __str__(self) -> str:
         return f"{self.user} - {self.entry}: {self.state}"
+
+
+class QuestionState(models.Model):
+    """Spaced-repetition state of a question the user has missed (scope 5, architecture 6.3).
+
+    Created on the first miss. Box 0 to 4 maps to the review intervals.
+    """
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="question_states"
+    )
+    question = models.ForeignKey(
+        "quizzes.Question", on_delete=models.CASCADE, related_name="states"
+    )
+    box = models.PositiveSmallIntegerField(default=0)
+    due_date = models.DateField()
+    miss_count = models.PositiveIntegerField(default=0)
+    last_answered_at = models.DateTimeField()
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["user", "question"], name="unique_question_state"),
+        ]
+        indexes = [models.Index(fields=["user", "due_date"])]
+
+    def __str__(self) -> str:
+        return f"{self.user} - question {self.question_id}: box {self.box}"

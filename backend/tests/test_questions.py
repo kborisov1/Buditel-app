@@ -11,6 +11,7 @@ from apps.content.rules import publish_error
 from apps.quizzes.forms import QuestionForm
 from apps.quizzes.models import Question
 from apps.quizzes.payloads import question_errors
+from tests.helpers import EMPTY_INLINES
 
 
 @pytest.mark.parametrize(
@@ -128,8 +129,7 @@ def _entry_post(entry: Entry, status: str, questions: int) -> dict[str, Any]:
         "date_certainty": "exact",
         "importance": entry.importance,
         "year_order": 0,
-        "sources-TOTAL_FORMS": 0,
-        "sources-INITIAL_FORMS": 0,
+        **EMPTY_INLINES,
         "questions-TOTAL_FORMS": questions,
         "questions-INITIAL_FORMS": 0,
     }

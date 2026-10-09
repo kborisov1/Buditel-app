@@ -1,6 +1,17 @@
 import type { components } from "./schema";
 
-export type User = components["schemas"]["UserOut"];
+type Schemas = components["schemas"];
+
+export type User = Schemas["UserOut"];
+export type EntrySummary = Schemas["EntrySummaryOut"];
+export type LockedEntry = Schemas["LockedEntryOut"];
+export type EntryListItem = EntrySummary | LockedEntry;
+export type EntryDetail = Schemas["EntryDetailOut"];
+export type EntryType = Schemas["Type"];
+export type Quiz = Schemas["QuizOut"];
+export type QuizQuestion = Schemas["QuestionOut"];
+export type QuizAnswer = Schemas["AnswerIn"]["answer"];
+export type QuizResult = Schemas["QuizPassedOut"] | Schemas["QuizFailedOut"];
 
 export class ApiError extends Error {
   status: number;
@@ -43,4 +54,24 @@ export const api = {
     });
   },
   logout: () => request<void>("/auth/logout", { method: "POST" }),
+  entries(filters: { type?: string; q?: string } = {}) {
+    const params = new URLSearchParams();
+    if (filters.type) params.set("type", filters.type);
+    if (filters.q) params.set("q", filters.q);
+    const query = params.toString();
+    return request<EntryListItem[]>(`/entries${query ? `?${query}` : ""}`);
+  },
+  entry: (slug: string) =>
+    request<EntryDetail | LockedEntry>(`/entries/${encodeURIComponent(slug)}`),
+  finishedReading: (slug: string) =>
+    request<Schemas["ProgressOut"]>(`/entries/${encodeURIComponent(slug)}/finished-reading`, {
+      method: "POST",
+    }),
+  startQuiz: (slug: string) =>
+    request<Quiz>(`/entries/${encodeURIComponent(slug)}/quiz`, { method: "POST" }),
+  submitQuiz: (attemptId: number, answers: Schemas["AnswerIn"][]) =>
+    request<QuizResult>(`/quiz-attempts/${attemptId}/submit`, {
+      method: "POST",
+      body: JSON.stringify({ answers }),
+    }),
 };

@@ -8,10 +8,12 @@ MIN_QUESTIONS = 6
 
 
 def entry_field_errors(
-    *, is_event: bool, event_date: date | None, importance: str
+    *, is_event: bool, event_date: date | None, importance: str, in_tracks_or_gates: bool = False
 ) -> dict[str, str]:
     """Return field-level errors for an entry's type-dependent fields."""
     errors: dict[str, str] = {}
+    if not is_event and in_tracks_or_gates:
+        errors["type"] = "Remove this entry from its tracks and gates before changing its type."
     if is_event:
         if event_date is None:
             errors["event_date"] = "Events need a date (best guess if not exact)."

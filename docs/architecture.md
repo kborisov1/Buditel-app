@@ -102,14 +102,14 @@ Business rules live in plain service modules inside each app (for example `progr
 - `Source`: citations per entry.
 - `Image`: file (validated with Pillow, width and height recorded), position (unique per entry), caption, credit, license note. Images form an ordered gallery, and the first one is the main image. The body can also place an image inline with `![[position]]`.
 - `Phase`: name, start and end dates (timeline bands, may overlap). An event's phase is derived from its date, not stored.
-- `Track`: name, order. `TrackEntry`: track, event, position. An event can appear in several tracks.
-- `Gate` and `GateRequirement`: an event unlocked only after listed other events are read and passed.
+- `Track`: name, kind (`regular`, `opening`, `finale`; at most one opening and one finale), position. `TrackEntry`: track, event, position (unique per track). An event can appear in several tracks. Only events can be in tracks or gates; an entry in a track or gate cannot change its type.
+- `GateRequirement`: event, required event. An event with one or more requirements is a gate event: it unlocks only after all of them are read and passed. A separate `Gate` table is not needed.
 - `Question`: entry FK, type (`multiple_choice`, `true_false`, `date_ordering`, `fill_blank`), prompt, `payload` JSONB, explanation. Payload shape depends on type and is validated with Pydantic models on save:
   - `multiple_choice`: `{"options": [2-6 unique strings], "correct": index}`, exactly one correct option.
   - `true_false`: `{"answer": bool}`, whether the prompt statement is true.
   - `date_ordering`: `{"items": [3-6 unique strings]}`, stored in the correct chronological order and shuffled when shown.
   - `fill_blank`: `{"answers": [1-10 accepted strings]}`. The prompt contains exactly one blank (`___`). Grading ignores case, extra whitespace and punctuation.
-- `AppSetting`: key and value rows for tunables (finale percentage, XP values, pass mark, level curve).
+- `AppSetting`: key and JSON value rows for tunables (finale percentage, XP values, pass mark, level curve). Each known key has a default and a validator in `core/app_settings.py`; `get_setting(key)` returns the stored value or the default. New tunables are added there and seeded by a data migration.
 
 **Per-user tables**
 
@@ -133,7 +133,8 @@ All rules run on the server. The client only displays results.
 
 ### 6.1 Unlocking (scope 3)
 
-- An **event** is unlocked when, for every track it belongs to, the previous event in that track is `read`, and all its gate requirements are `read`. For multi-track events, all tracks must allow it. 
+- An **event** is unlocked when, for every track it belongs to, the previous event in that track is `read`, and all its gate requirements are `read`. For multi-track events, all tracks must allow it.
+- The first event of every non-opening track additionally requires all events of the **opening** track (Awakening) to be `read`.
 - A **non-event entry** is unlocked once any linked event is `read`.
 - The **Finale** track's first event unlocks when, in every other track, the user has read at least `ceil(pct * event_count)` events, where `pct` comes from `AppSetting` (default 80%).
 - With about 50 entries, the full unlock state for a user is computed per request from three small queries (progress, track order, gates). No cache is needed in v1. If it becomes slow, the cache key is the user's last progress timestamp.

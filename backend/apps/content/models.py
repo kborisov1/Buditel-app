@@ -68,9 +68,14 @@ class Entry(models.Model):
             is_event=self.type == self.Type.EVENT,
             event_date=self.event_date,
             importance=self.importance,
+            in_tracks_or_gates=self.pk is not None and self._in_tracks_or_gates(),
         )
         if errors:
             raise ValidationError(errors)
+
+    def _in_tracks_or_gates(self) -> bool:
+        gates = GateRequirement.objects.filter(models.Q(event=self) | models.Q(required_event=self))
+        return TrackEntry.objects.filter(entry=self).exists() or gates.exists()
 
 
 class Source(models.Model):
@@ -151,3 +156,104 @@ class Image(models.Model):
 
     def __str__(self) -> str:
         return self.caption
+
+
+EVENTS_ONLY = {"type": Entry.Type.EVENT}
+
+
+class Phase(models.Model):
+    """Timeline band (scope 3.1). Bands may overlap; an event's phase follows from its date."""
+
+    name = models.CharField(max_length=100)
+    start_date = models.DateField()
+    end_date = models.DateField()
+
+    class Meta:
+        ordering = ["start_date", "end_date"]
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(end_date__gte=models.F("start_date")),
+                name="phase_end_after_start",
+                violation_error_message="The end date must not be before the start date.",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class Track(models.Model):
+    """Unlock track (scope 3.2). Events unlock strictly in position order within a track."""
+
+    class Kind(models.TextChoices):
+        REGULAR = "regular"
+        OPENING = "opening", "Opening (other tracks start after it)"
+        FINALE = "finale", "Finale (unlocks after the threshold in every track)"
+
+    name = models.CharField(max_length=100)
+    kind = models.CharField(max_length=16, choices=Kind.choices, default=Kind.REGULAR)
+    position = models.PositiveSmallIntegerField(unique=True, help_text="Display order.")
+
+    class Meta:
+        ordering = ["position"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["kind"],
+                condition=models.Q(kind__in=["opening", "finale"]),
+                name="one_opening_one_finale_track",
+                violation_error_message="There can be only one opening and one finale track.",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class TrackEntry(models.Model):
+    track = models.ForeignKey(Track, on_delete=models.CASCADE, related_name="items")
+    entry = models.ForeignKey(
+        Entry,
+        on_delete=models.CASCADE,
+        related_name="track_items",
+        limit_choices_to=EVENTS_ONLY,
+        verbose_name="event",
+    )
+    position = models.PositiveSmallIntegerField()
+
+    class Meta:
+        verbose_name = "track event"
+        ordering = ["track", "position"]
+        constraints = [
+            models.UniqueConstraint(fields=["track", "position"], name="unique_track_position"),
+            models.UniqueConstraint(fields=["track", "entry"], name="unique_track_entry"),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.track} #{self.position}: {self.entry}"
+
+
+class GateRequirement(models.Model):
+    """Gate event (scope 3.3): `event` unlocks only after `required_event` is read."""
+
+    event = models.ForeignKey(
+        Entry,
+        on_delete=models.CASCADE,
+        related_name="gate_requirements",
+        limit_choices_to=EVENTS_ONLY,
+    )
+    required_event = models.ForeignKey(
+        Entry, on_delete=models.CASCADE, related_name="+", limit_choices_to=EVENTS_ONLY
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["event", "required_event"], name="unique_gate"),
+            models.CheckConstraint(
+                condition=~models.Q(event=models.F("required_event")),
+                name="no_self_gate",
+                violation_error_message="An event cannot require itself.",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.event} requires {self.required_event}"

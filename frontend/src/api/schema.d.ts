@@ -140,6 +140,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/entries/{slug}/quiz": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start */
+        post: operations["apps_quizzes_api_start"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/quiz-attempts/{attempt_id}/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit */
+        post: operations["apps_quizzes_api_submit"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -324,6 +358,81 @@ export interface components {
             /** State */
             state: string;
         };
+        /** QuestionOut */
+        QuestionOut: {
+            /** Id */
+            id: number;
+            /** Type */
+            type: string;
+            /** Prompt */
+            prompt: string;
+            /** Options */
+            options?: string[] | null;
+            /** Items */
+            items?: string[] | null;
+        };
+        /** QuizOut */
+        QuizOut: {
+            /** Attempt Id */
+            attempt_id: number;
+            /** Questions */
+            questions: components["schemas"]["QuestionOut"][];
+        };
+        /** QuestionResultOut */
+        QuestionResultOut: {
+            /** Question Id */
+            question_id: number;
+            /** Correct */
+            correct: boolean;
+            /** Your Answer */
+            your_answer: number | boolean | string[] | string;
+            /** Correct Answer */
+            correct_answer: number | boolean | string[] | string;
+            /** Explanation */
+            explanation: string;
+        };
+        /** QuizFailedOut */
+        QuizFailedOut: {
+            /**
+             * Passed
+             * @default false
+             * @constant
+             */
+            passed: false;
+            /** Score */
+            score: number;
+            /** Total */
+            total: number;
+        };
+        /** QuizPassedOut */
+        QuizPassedOut: {
+            /**
+             * Passed
+             * @default true
+             * @constant
+             */
+            passed: true;
+            /** Score */
+            score: number;
+            /** Total */
+            total: number;
+            /** Xp Awarded */
+            xp_awarded: number;
+            /** Results */
+            results: components["schemas"]["QuestionResultOut"][];
+        };
+        /** AnswerIn */
+        AnswerIn: {
+            /** Question Id */
+            question_id: number;
+            /** Answer */
+            answer: number | boolean | string[] | string;
+        };
+        /** SubmitIn */
+        SubmitIn: {
+            /** Answers */
+            answers: components["schemas"]["AnswerIn"][];
+        };
     };
     responses: never;
     parameters: never;
@@ -499,6 +608,54 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ProgressOut"];
+                };
+            };
+        };
+    };
+    apps_quizzes_api_start: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuizOut"];
+                };
+            };
+        };
+    };
+    apps_quizzes_api_submit: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                attempt_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubmitIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuizPassedOut"] | components["schemas"]["QuizFailedOut"];
                 };
             };
         };

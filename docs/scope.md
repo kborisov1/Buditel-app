@@ -75,7 +75,7 @@ Bands may overlap on the timeline.
 
 ### 3.2 Tracks (themes, based on unlocking)
 Tracks run in parallel. Within each track, events unlock **strictly in order**.
-- Awakening (short opening track every user starts with)
+- Awakening (short opening track every user starts with; the other tracks open once all its events are read)
 - Education and culture
 - Church struggle
 - Liberation struggle

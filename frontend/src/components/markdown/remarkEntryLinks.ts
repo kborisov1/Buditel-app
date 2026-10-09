@@ -1,21 +1,31 @@
 import type { Parent, PhrasingContent, Root, RootContent, Text } from "mdast";
 
-// [[slug]] or [[slug|label]] (architecture 8).
-const LINK = /\[\[([^\]|]+?)(?:\|([^\]]+?))?\]\]/g;
+// ![[position]] image, or [[slug]] / [[slug|label]] link (architecture 8).
+const REF = /!\[\[(\d+)\]\]|\[\[([^\]|]+?)(?:\|([^\]]+?))?\]\]/g;
 
 function split(node: Text): PhrasingContent[] {
   const out: PhrasingContent[] = [];
   let last = 0;
-  for (const match of node.value.matchAll(LINK)) {
+  for (const match of node.value.matchAll(REF)) {
     const start = match.index;
     if (start > last) out.push({ type: "text", value: node.value.slice(last, start) });
-    const slug = match[1].trim();
-    const label = match[2]?.trim() ?? "";
-    out.push({
-      type: "text",
-      value: label || slug,
-      data: { hName: "span", hProperties: { dataEntrySlug: slug, dataEntryLabel: label } },
-    });
+    const [, position, slug, label] = match;
+    if (position) {
+      out.push({
+        type: "text",
+        value: "",
+        data: { hName: "span", hProperties: { dataEntryImage: position } },
+      });
+    } else {
+      out.push({
+        type: "text",
+        value: label?.trim() || slug.trim(),
+        data: {
+          hName: "span",
+          hProperties: { dataEntrySlug: slug.trim(), dataEntryLabel: label?.trim() ?? "" },
+        },
+      });
+    }
     last = start + match[0].length;
   }
   if (last === 0) return [node];
@@ -31,7 +41,7 @@ function walk(parent: Parent): void {
   }) as Parent["children"];
 }
 
-/** Turns [[slug]] text into spans carrying data-entry-slug, rendered by EntryMarkdown. */
+/** Turns [[slug]] and ![[position]] text into marked spans, rendered by EntryMarkdown. */
 export default function remarkEntryLinks() {
   return (tree: Root) => walk(tree);
 }

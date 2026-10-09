@@ -7,15 +7,37 @@ export interface EntryLink {
   href: string | null;
 }
 
+/** An entry image, referenced in the body as ![[position]]. */
+export interface EntryImage {
+  src: string;
+  caption: string;
+  credit: string;
+}
+
 interface Props {
   body: string;
   links: Record<string, EntryLink>;
+  images?: Record<string, EntryImage>;
 }
 
 /** Entry body renderer shared by the learner app and the admin preview (architecture 8). */
-export default function EntryMarkdown({ body, links }: Props) {
+export default function EntryMarkdown({ body, links, images = {} }: Props) {
   const components: Components = {
     span({ node, children, ...rest }) {
+      const position = node?.properties.dataEntryImage;
+      if (typeof position === "string") {
+        const image = images[position];
+        if (!image) return <span className="entry-image-missing">![[{position}]]</span>;
+        return (
+          <span className="entry-image">
+            <img src={image.src} alt={image.caption} />
+            <span className="entry-image-caption">
+              {image.caption}
+              {image.credit && <span className="entry-image-credit"> ({image.credit})</span>}
+            </span>
+          </span>
+        );
+      }
       const slug = node?.properties.dataEntrySlug;
       if (typeof slug !== "string") return <span {...rest}>{children}</span>;
       const label = node?.properties.dataEntryLabel;

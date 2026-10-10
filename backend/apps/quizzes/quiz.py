@@ -138,9 +138,8 @@ def _record_pass(user: User, attempt: QuizAttempt) -> int:
         kind, amount = XpEvent.Kind.QUIZ_FIRST_PASS, get_setting("xp_quiz_first_pass")
     else:
         kind, amount = XpEvent.Kind.QUIZ_RETAKE, get_setting("xp_quiz_retake")
-    if amount:
-        xp.award(user, kind, amount, reference=f"quiz_attempt:{attempt.pk}")
-    return int(amount)
+    event = xp.award(user, kind, amount, reference=f"quiz_attempt:{attempt.pk}")
+    return event.amount if event else 0
 
 
 def shown_question(question: Question, rng: random.Random | None = None) -> dict[str, Any]:

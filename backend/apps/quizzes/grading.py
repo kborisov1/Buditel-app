@@ -29,6 +29,17 @@ def answer_error(question_type: str, answer: Any) -> str | None:
     return None if valid else f"Expected {what}."
 
 
+def answer_set_error(questions: list[Question], answers: dict[int, Any]) -> str | None:
+    """Why a full set of answers is unusable: every question once, each in the right shape."""
+    if set(answers) != {q.pk for q in questions}:
+        return "Answer every question, and only those."
+    for question in questions:
+        error = answer_error(question.type, answers[question.pk])
+        if error:
+            return f"Question {question.pk}: {error}"
+    return None
+
+
 def is_correct(question_type: str, payload: dict[str, Any], answer: Any) -> bool:
     match question_type:
         case Question.Type.MULTIPLE_CHOICE:

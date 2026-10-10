@@ -118,6 +118,9 @@ The author can define gate events in the admin panel: an event that unlocks only
 - Appears **after every third entry** the user completes.
 - Not part of the post-reading quiz.
 - Has **no pass mark**. It gives XP per correct answer (see 6.1).
+- Questions: one from each of up to 3 different read **events**, skipping the 3 entries completed most recently so the check is about older material. If too few older events have questions, any read event is used. With fewer than 2 questions available, that check is skipped.
+- Only the latest due check is offered; missed checks do not stack up.
+- After submitting, the user sees which answers were right, the correct answers and the explanations. Missed questions enter the review schedule (section 5).
 
 ---
 
@@ -194,7 +197,7 @@ A few "at a glance" panels:
 - Reviews due today
 - Level progress
 
-Primary action: one **"Start today's session"** button that builds a queue: due reviews first, then the next entry on the user's tracks, with the older-event check inserted after every third entry. Secondary shortcuts: **Review only, Continue reading, Practice.**
+Primary action: one **"Start today's session"** button that builds a queue: due reviews first, then the next entry on the user's tracks, with the older-event check inserted after every third entry. The next entries are those already marked "Finished reading" but not yet passed, then unlocked unread events in timeline order (date, then same-year order). Secondary shortcuts: **Review only, Continue reading, Practice.**
 
 ### 7.2 Timeline
 - One continuous horizontal line from 1762 to 1878, navigated by **zooming in and out** (not horizontal scrolling).

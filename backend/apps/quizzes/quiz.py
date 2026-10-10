@@ -19,7 +19,7 @@ from apps.progress.reading import EntryLocked
 from apps.progress.review import missed_question_ids, record_miss
 from apps.progress.unlock import is_unlocked
 
-from .grading import answer_error, is_correct
+from .grading import answer_set_error, is_correct
 from .models import Question, QuizAttempt, QuizAttemptQuestion
 
 QUIZ_SIZE = 5
@@ -96,7 +96,9 @@ def submit_quiz(user: User, attempt_id: int, answers: dict[int, Any]) -> QuizRes
         if attempt.submitted_at is not None:
             raise AlreadySubmitted
         items = list(attempt.items.select_related("question"))
-        _check_answers(items, answers)
+        error = answer_set_error([i.question for i in items], answers)
+        if error:
+            raise InvalidAnswers(error)
 
         for item in items:
             item.answer = answers[item.question_id]
@@ -112,15 +114,6 @@ def submit_quiz(user: User, attempt_id: int, answers: dict[int, Any]) -> QuizRes
             attempt.xp_awarded = _record_pass(user, attempt)
         attempt.save()
     return QuizResult(attempt, items)
-
-
-def _check_answers(items: list[QuizAttemptQuestion], answers: dict[int, Any]) -> None:
-    if set(answers) != {i.question_id for i in items}:
-        raise InvalidAnswers("Answer every question in the quiz, and only those.")
-    for item in items:
-        error = answer_error(item.question.type, answers[item.question_id])
-        if error:
-            raise InvalidAnswers(f"Question {item.question_id}: {error}")
 
 
 def _record_pass(user: User, attempt: QuizAttempt) -> int:

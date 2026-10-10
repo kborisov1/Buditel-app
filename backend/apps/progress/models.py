@@ -57,3 +57,48 @@ class QuestionState(models.Model):
 
     def __str__(self) -> str:
         return f"{self.user} - question {self.question_id}: box {self.box}"
+
+
+class OlderEventCheck(models.Model):
+    """Short check on older read events after every third completed entry (scope 4.1).
+
+    `milestone` is the completed-entries count it belongs to (3, 6, ...). A check created
+    with no questions counts as skipped.
+    """
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="older_event_checks"
+    )
+    milestone = models.PositiveIntegerField()
+    created_at = models.DateTimeField()
+    submitted_at = models.DateTimeField(null=True, blank=True)
+    score = models.PositiveSmallIntegerField(null=True, blank=True)
+    xp_awarded = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(fields=["user", "milestone"], name="unique_check_milestone"),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.user} - check at {self.milestone}"
+
+
+class OlderEventCheckQuestion(models.Model):
+    older_check = models.ForeignKey(OlderEventCheck, on_delete=models.CASCADE, related_name="items")
+    question = models.ForeignKey("quizzes.Question", on_delete=models.CASCADE, related_name="+")
+    position = models.PositiveSmallIntegerField()
+    answer = models.JSONField(null=True, blank=True)
+    correct = models.BooleanField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["older_check", "position"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["older_check", "position"], name="unique_check_position"
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.older_check} #{self.position}"

@@ -225,6 +225,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/session": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Session */
+        get: operations["apps_progress_api_session"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/checks/{check_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Check */
+        get: operations["apps_progress_api_get_check"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/checks/{check_id}/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit Check */
+        post: operations["apps_progress_api_submit_check"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -559,6 +610,71 @@ export interface components {
             /** Answer */
             answer: number | boolean | string[] | string;
         };
+        /**
+         * CheckStepOut
+         * @description An older-event check: open now when `check_id` is set, otherwise planned.
+         */
+        CheckStepOut: {
+            /**
+             * Kind
+             * @default check
+             * @constant
+             */
+            kind: "check";
+            /** Check Id */
+            check_id: number | null;
+        };
+        /** EntryStepOut */
+        EntryStepOut: {
+            /**
+             * Kind
+             * @default entry
+             * @constant
+             */
+            kind: "entry";
+            /** Slug */
+            slug: string;
+            /** Title */
+            title: string;
+            /** Type */
+            type: string;
+            /** Progress */
+            progress: string | null;
+        };
+        /** ReviewStepOut */
+        ReviewStepOut: {
+            /**
+             * Kind
+             * @default review
+             * @constant
+             */
+            kind: "review";
+            /** Count */
+            count: number;
+        };
+        /** SessionOut */
+        SessionOut: {
+            /** Steps */
+            steps: (components["schemas"]["ReviewStepOut"] | components["schemas"]["CheckStepOut"] | components["schemas"]["EntryStepOut"])[];
+        };
+        /** CheckOut */
+        CheckOut: {
+            /** Check Id */
+            check_id: number;
+            /** Questions */
+            questions: components["schemas"]["QuestionOut"][];
+        };
+        /** CheckResultOut */
+        CheckResultOut: {
+            /** Score */
+            score: number;
+            /** Total */
+            total: number;
+            /** Xp Awarded */
+            xp_awarded: number;
+            /** Results */
+            results: components["schemas"]["QuestionResultOut"][];
+        };
     };
     responses: never;
     parameters: never;
@@ -846,6 +962,74 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ReviewResultOut"];
+                };
+            };
+        };
+    };
+    apps_progress_api_session: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionOut"];
+                };
+            };
+        };
+    };
+    apps_progress_api_get_check: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                check_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CheckOut"];
+                };
+            };
+        };
+    };
+    apps_progress_api_submit_check: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                check_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubmitIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CheckResultOut"];
                 };
             };
         };

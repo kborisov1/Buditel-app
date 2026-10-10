@@ -155,7 +155,7 @@ All rules run on the server. The client only displays results.
 
 ### 6.3 Spaced repetition (scope 5)
 
-Leitner-style boxes with fixed intervals 1, 3, 7, 14, 30 days. A correct answer moves up one box and sets the next due date. A wrong answer resets to box 0 (due in 1 day). The daily queue is `QuestionState` where `due_date <= today`. Review answers always return the explanation; the entry link is included only for wrong answers.
+Leitner-style boxes with fixed intervals 1, 3, 7, 14, 30 days. A correct answer moves up one box and sets the next due date; at the last box it stays there and comes back every 30 days. A wrong answer resets to box 0 (due in 1 day). The daily queue (`GET /api/review`) is `QuestionState` where `due_date <= today`, most overdue first, limited to entries the user can open (drafts and locked entries wait). Answers go one at a time (`POST /api/review/answer`) and only for questions in today's queue, so a question cannot be answered twice for XP on the same day. A correct answer awards `xp_review_correct` through the daily-goal rules (6.5). Review answers always return the explanation; the entry link is included only for wrong answers, and the correct answer itself is not sent.
 
 ### 6.4 Older-event check (scope 4.1)
 

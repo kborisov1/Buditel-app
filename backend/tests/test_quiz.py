@@ -228,10 +228,10 @@ def test_pass_marks_read_awards_xp_and_unlocks(
 
     progress = EntryProgress.objects.get(user=user, entry=entries[0])
     assert (progress.state, progress.passed_at) == ("read", NOW)
-    (event,) = XpEvent.objects.filter(user=user)
+    (event,) = XpEvent.objects.filter(user=user, kind__startswith="quiz")
     assert (event.kind, event.amount, event.local_date) == ("quiz_first_pass", 50, NOW.date())
-    user.profile.refresh_from_db()  # type: ignore[attr-defined]
-    assert user.profile.completed_entries_count == 1  # type: ignore[attr-defined]
+    user.profile.refresh_from_db()
+    assert user.profile.completed_entries_count == 1
     assert client.get("/api/entries/second").json()["locked"] is False
 
 
@@ -240,7 +240,7 @@ def test_fail_returns_score_only(client: Client, user: User, entries: tuple[Entr
     assert response.json() == {"passed": False, "score": 3, "total": 5}
     assert "Explanation" not in response.content.decode()
     assert EntryProgress.objects.get(user=user).state == "in_progress"
-    assert not XpEvent.objects.exists()
+    assert not XpEvent.objects.filter(kind__startswith="quiz").exists()
     assert client.get("/api/entries/second").json()["locked"] is True
 
 
@@ -281,11 +281,12 @@ def test_fail_then_pass_is_first_pass(
 
 def test_retake_gives_reduced_xp(client: Client, user: User, entries: tuple[Entry, Entry]) -> None:
     _submit(client, _start(client))
-    assert _submit(client, _start(client)).json()["xp_awarded"] == 5
+    # The first pass already reached the daily goal, so the retake gets the reduced rate.
+    assert _submit(client, _start(client)).json()["xp_awarded"] == 4
     assert XpEvent.objects.filter(kind="quiz_retake").count() == 1
     assert EntryProgress.objects.get(user=user).passed_at == NOW
-    user.profile.refresh_from_db()  # type: ignore[attr-defined]
-    assert user.profile.completed_entries_count == 1  # type: ignore[attr-defined]
+    user.profile.refresh_from_db()
+    assert user.profile.completed_entries_count == 1
 
 
 def test_settings_drive_pass_mark_and_xp(client: Client, entries: tuple[Entry, Entry]) -> None:

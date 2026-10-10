@@ -44,6 +44,22 @@ SPECS: dict[str, Spec] = {
     "xp_check_correct": _xp("XP per correct answer in an older-event check (scope 6.1).", 3),
     "xp_daily_login": _xp("XP for the first login of the day (scope 6.1).", 5),
     "xp_daily_goal_bonus": _xp("XP bonus for reaching the daily goal (scope 6.1).", 10),
+    "daily_goal_xp": Spec(
+        default=40,
+        help="XP per local day that completes the daily goal (scope 6.4).",
+        is_valid=_int_between(1, 1000),
+        error="Enter a whole number from 1 to 1000.",
+    ),
+    "goal_overflow_percentage": _percentage(
+        "Share of normal XP awarded after the daily goal is reached (scope 6.1).", 80
+    ),
+    "level_base_xp": Spec(
+        default=100,
+        help="XP needed to go from level 1 to 2 (scope 6.2).",
+        is_valid=_int_between(1, 10000),
+        error="Enter a whole number from 1 to 10000.",
+    ),
+    "level_step_xp": _xp("Extra XP each following level needs over the previous (scope 6.2).", 25),
 }
 
 

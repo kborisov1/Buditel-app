@@ -144,7 +144,7 @@ The author can define gate events in the admin panel: an event that unlocks only
 - XP only for v1. A second currency (coins or similar) is **[LATER]**.
 
 ### 6.2 Levels and titles
-- Level 1 to 2 needs **100 XP**. Each following level needs **25 XP more** than the previous one (level 2 to 3 needs 125, level 3 to 4 needs 150, and so on).
+- Level 1 to 2 needs **100 XP**. Each following level needs **25 XP more** than the previous one (level 2 to 3 needs 125, level 3 to 4 needs 150, and so on). Both values are admin settings.
 - A **title** is shown, and it changes every few levels rather than every level. Starting set (Bulgarian, user-facing):
   - Levels 1-2: Селянин
   - Levels 3-5: Ученик
@@ -161,11 +161,12 @@ The author can define gate events in the admin panel: an event that unlocks only
 - The "day" rolls over at **midnight in the user's own time zone**.
 - **Streak freeze**: earned once per 7-day streak, **max 2 held** at a time, applied **automatically** when a day is missed.
 - A missed day uses a freeze automatically if one is held. Two missed days in a row use two freezes. With no freeze available, the streak resets to 0.
+- Freezes are used only when they cover every missed day. If the gap is longer than the freezes held, the streak resets to 0 and the freezes are kept.
 - A freeze is earned at every 7-day streak mark, up to the maximum of 2 held.
 - The profile also stores the **longest streak**.
 
 ### 6.4 Daily goal
-- Fixed for all users in v1 (not user-configurable). Target: **40 XP per day**, designed for about 10 minutes of activity. Passing one entry's quiz (50 XP) completes it on its own. A review-only day needs roughly 18 correct review answers together with the daily login bonus. Login XP counts toward the goal.
+- Fixed for all users in v1 (not user-configurable). Target: **40 XP per day** (admin setting, like the 20% reduced rate after the goal), designed for about 10 minutes of activity. Passing one entry's quiz (50 XP) completes it on its own. A review-only day needs roughly 18 correct review answers together with the daily login bonus. Login XP counts toward the goal.
 - Reaching it gives visual completion plus a small XP bonus.
 - Must be reachable even when the user has no new content left (reviews, older-event checks, and practice count), so streaks never depend on how much content exists.
 

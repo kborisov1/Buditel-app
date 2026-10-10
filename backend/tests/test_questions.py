@@ -170,7 +170,10 @@ def test_admin_allows_draft_with_few_questions(admin_client: Client, entry: Entr
 
 def test_question_list_is_searchable(admin_client: Client, entry: Entry) -> None:
     Question.objects.create(
-        entry=entry, type="true_false", prompt="Паисий е монах.", explanation="x",
+        entry=entry,
+        type="true_false",
+        prompt="Паисий е монах.",
+        explanation="x",
         payload={"answer": True},
     )
     page = admin_client.get("/admin/quizzes/question/?q=монах").content.decode()

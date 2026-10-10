@@ -174,6 +174,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Dashboard */
+        get: operations["apps_gamification_api_dashboard"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -433,6 +450,47 @@ export interface components {
             /** Answers */
             answers: components["schemas"]["AnswerIn"][];
         };
+        /** DashboardOut */
+        DashboardOut: {
+            goal: components["schemas"]["GoalOut"];
+            streak: components["schemas"]["StreakOut"];
+            level: components["schemas"]["LevelOut"];
+            /** Reviews Due */
+            reviews_due: number;
+        };
+        /** GoalOut */
+        GoalOut: {
+            /** Target */
+            target: number;
+            /** Earned Today */
+            earned_today: number;
+            /** Reached */
+            reached: boolean;
+        };
+        /** LevelOut */
+        LevelOut: {
+            /** Level */
+            level: number;
+            /** Title */
+            title: string;
+            /** Total Xp */
+            total_xp: number;
+            /** Xp Into Level */
+            xp_into_level: number;
+            /** Xp For Next Level */
+            xp_for_next_level: number;
+        };
+        /** StreakOut */
+        StreakOut: {
+            /** Current */
+            current: number;
+            /** Longest */
+            longest: number;
+            /** Freezes Held */
+            freezes_held: number;
+            /** Max Freezes */
+            max_freezes: number;
+        };
     };
     responses: never;
     parameters: never;
@@ -656,6 +714,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["QuizPassedOut"] | components["schemas"]["QuizFailedOut"];
+                };
+            };
+        };
+    };
+    apps_gamification_api_dashboard: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DashboardOut"];
                 };
             };
         };

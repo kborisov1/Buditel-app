@@ -118,6 +118,7 @@ Business rules live in plain service modules inside each app (for example `progr
 - `QuizAttempt` and `QuizAttemptQuestion`: the drawn question IDs, submitted answers, score, result.
 - `QuestionState`: user, question, SRS box (0 to 4 mapping to 1, 3, 7, 14, 30 days), due date, miss count, last answered. Created on first miss (scope 5).
 - `XpEvent`: append-only ledger (user, kind, amount, local date, reference). Total XP and level are derived by summing.
+- `OlderEventCheck` and `OlderEventCheckQuestion`: one check per user and milestone (3, 6, ...), the drawn question IDs, answers, score, XP awarded. A check created with no questions counts as skipped.
 - `DailyChallenge`: user, local date, fixed question IDs, completion state.
 - `ActivityLog`: user (nullable), timestamp, category (user, content, error), event type, JSONB details. Indexed on user, timestamp and type.
 
@@ -159,7 +160,11 @@ Leitner-style boxes with fixed intervals 1, 3, 7, 14, 30 days. A correct answer 
 
 ### 6.4 Older-event check (scope 4.1)
 
-The `Profile` completed-entries counter increments on each first pass. When it reaches a multiple of 3, the next session step is a check of 2 to 3 questions drawn from already-read entries. There is no pass mark, and 3 XP is awarded per correct answer.
+The `Profile` completed-entries counter increments on each first pass. When it reaches a multiple of 3, the next session step is a check of 2 to 3 questions drawn from already-read events (scope 4.1 has the draw rules). The check row is created on first request for the latest milestone only (`progress/older_check.py`), so reloading shows the same questions. There is no pass mark; `xp_check_correct` (3) is awarded per correct answer through the daily-goal rules, and misses go to review like quiz misses.
+
+### 6.4.1 Daily session (scope 7.1)
+
+`GET /api/session` (`progress/session.py`) returns ordered steps: a review step with the due count, the open check if any, then up to 3 next entries, with a planned check (no ID yet) after the entry that will reach the next milestone. The client works through the steps and refetches; the server recomputes the queue each time, so nothing about the session is stored.
 
 ### 6.5 XP, levels, daily goal (scope 6)
 

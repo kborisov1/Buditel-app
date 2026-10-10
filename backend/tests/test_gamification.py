@@ -4,7 +4,7 @@ import pytest
 from django.contrib.auth.models import User
 from django.test import Client
 
-from apps.content.models import Entry
+from apps.content.models import Entry, Track, TrackEntry
 from apps.core.app_settings import get_setting
 from apps.core.models import AppSetting
 from apps.gamification.levels import level_for, level_info, title_for, xp_to_reach
@@ -227,7 +227,18 @@ def test_anonymous_and_admin_requests_skip_activity(user: User, clock: list[date
 
 
 def test_dashboard(client: Client, user: User) -> None:
-    entry = Entry.objects.create(type=Entry.Type.CONCEPT, slug="c", title="c", summary="x")
+    entry = Entry.objects.create(
+        type=Entry.Type.EVENT,
+        slug="e",
+        title="e",
+        summary="x",
+        event_date=date(1800, 1, 1),
+        importance=Entry.Importance.MAJOR,
+        status=Entry.Status.PUBLISHED,
+    )
+    TrackEntry.objects.create(
+        track=Track.objects.get(kind=Track.Kind.OPENING), entry=entry, position=1
+    )
     for days in [-3, 0, 1]:
         question = Question.objects.create(
             entry=entry,

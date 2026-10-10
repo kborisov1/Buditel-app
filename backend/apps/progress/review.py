@@ -1,6 +1,6 @@
 """Spaced repetition state (scope 5, architecture 6.3)."""
 
-from datetime import timedelta
+from datetime import date, timedelta
 
 from django.contrib.auth.models import User
 
@@ -32,3 +32,7 @@ def missed_question_ids(user: User, question_ids: list[int]) -> set[int]:
         user=user, question_id__in=question_ids, miss_count__gt=0
     ).values_list("question_id", flat=True)
     return set(rows)
+
+
+def due_count(user: User, today: date) -> int:
+    return QuestionState.objects.filter(user=user, due_date__lte=today).count()

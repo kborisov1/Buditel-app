@@ -219,7 +219,9 @@ Primary action: one **"Start today's session"** button that builds a queue: due 
 - **Related entries sidebar** (title only for locked ones) and inline `[[entry-name]]` links.
 
 ### 7.5 Practice
-- User picks a topic and period and practices questions. Draws **only from unlocked entries**.
+- User picks a topic and period and practices questions. Draws **only from entries the user has read** (passed their quiz), so practice never gives away a post-reading quiz.
+- After each answer: right or wrong, the correct answer and the explanation. Misses do not affect the review schedule.
+- Every correct answer earns XP, with no per-question limit (reduced after the daily goal as usual).
 - Gives XP at a low rate. Relaxed, non-competitive in v1.
 
 ### 7.6 Profile

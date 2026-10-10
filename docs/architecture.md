@@ -188,7 +188,7 @@ Evaluated lazily, with no scheduler, by `DailyActivityMiddleware` on the user's 
 
 ### 6.7 Practice (scope 7.5)
 
-Draws only from unlocked entries, filtered by topic and period. It awards 2 XP per correct answer and never creates a quiz attempt.
+Draws only from read entries (scope 7.5), filtered by topic (track) and period (phase) with the library filters, so non-events match through linked events (`quizzes/practice.py`). `GET /api/practice` returns a random set (10 by default, up to 20); `POST /api/practice/answer` grades one answer and returns the correct answer and explanation. Each correct answer awards `xp_review_correct` (2) through the daily-goal rules. It never creates a quiz attempt or touches review state.
 
 ---
 

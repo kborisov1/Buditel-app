@@ -174,6 +174,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/practice": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Practice Set */
+        get: operations["apps_quizzes_api_practice_set"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/practice/answer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Practice Answer */
+        post: operations["apps_quizzes_api_practice_answer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/dashboard": {
         parameters: {
             query?: never;
@@ -534,6 +568,41 @@ export interface components {
         SubmitIn: {
             /** Answers */
             answers: components["schemas"]["AnswerIn"][];
+        };
+        /** PracticeFilters */
+        PracticeFilters: {
+            /** Track */
+            track?: number | null;
+            /** Phase */
+            phase?: number | null;
+            /**
+             * Count
+             * @default 10
+             */
+            count: number;
+        };
+        /** PracticeOut */
+        PracticeOut: {
+            /** Questions */
+            questions: components["schemas"]["QuestionOut"][];
+        };
+        /** PracticeResultOut */
+        PracticeResultOut: {
+            /** Correct */
+            correct: boolean;
+            /** Correct Answer */
+            correct_answer: number | boolean | string[] | string;
+            /** Explanation */
+            explanation: string;
+            /** Xp Awarded */
+            xp_awarded: number;
+        };
+        /** PracticeAnswerIn */
+        PracticeAnswerIn: {
+            /** Question Id */
+            question_id: number;
+            /** Answer */
+            answer: number | boolean | string[] | string;
         };
         /** DashboardOut */
         DashboardOut: {
@@ -898,6 +967,54 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["QuizPassedOut"] | components["schemas"]["QuizFailedOut"];
+                };
+            };
+        };
+    };
+    apps_quizzes_api_practice_set: {
+        parameters: {
+            query?: {
+                track?: number | null;
+                phase?: number | null;
+                count?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PracticeOut"];
+                };
+            };
+        };
+    };
+    apps_quizzes_api_practice_answer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PracticeAnswerIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PracticeResultOut"];
                 };
             };
         };

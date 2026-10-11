@@ -98,7 +98,7 @@ def test_locked_results_are_title_only(client: Client, user: User) -> None:
             importance=Entry.Importance.MAJOR,
             body_md="Secret body",
         )
-        TrackEntry.objects.create(track=opening, entry=event, position=position)
+        TrackEntry.objects.create(track=opening, entry=event)
     response = client.get("/api/search", {"q": "Събитие"})
     first, second = response.json()
     assert (first["locked"], first["summary"], first["progress"]) == (False, "Summary first", None)

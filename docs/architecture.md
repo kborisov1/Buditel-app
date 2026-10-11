@@ -102,7 +102,7 @@ Business rules live in plain service modules inside each app (for example `progr
 - `Source`: citations per entry.
 - `Image`: file (validated with Pillow, width and height recorded), position (unique per entry), caption, credit, license note. Images form an ordered gallery, and the first one is the main image. The body can also place an image inline with `![[position]]`.
 - `Phase`: name, start and end dates (timeline bands, may overlap). An event's phase is derived from its date, not stored.
-- `Track`: name, kind (`regular`, `opening`, `finale`; at most one opening and one finale), position. `TrackEntry`: track, event, position (unique per track). An event can appear in several tracks. Only events can be in tracks or gates; an entry in a track or gate cannot change its type.
+- `Track`: name, kind (`regular`, `opening`, `finale`; at most one opening and one finale), position. `TrackEntry`: track, event (unique per track). There is no stored position: events in a track are ordered like the timeline (year, `year_order`, date, title, then ID), through `content.models.chronological()`. An event can appear in several tracks. Only events can be in tracks or gates; an entry in a track or gate cannot change its type.
 - `GateRequirement`: event, required event. An event with one or more requirements is a gate event: it unlocks only after all of them are read and passed. A separate `Gate` table is not needed.
 - `Question`: entry FK, type (`multiple_choice`, `true_false`, `date_ordering`, `fill_blank`), prompt, `payload` JSONB, explanation. Payload shape depends on type and is validated with Pydantic models on save:
   - `multiple_choice`: `{"options": [2-6 unique strings], "correct": index}`, exactly one correct option.
@@ -122,7 +122,7 @@ Business rules live in plain service modules inside each app (for example `progr
 - `DailyChallenge` and `DailyChallengeQuestion`: user, local date, completion time; per question the position, answer, result and answer time.
 - `ActivityLog`: user (nullable), timestamp, category (user, content, error), event type, JSONB details. Indexed on user, timestamp and type.
 
-**Indexes to add from the start.** `EntryProgress(user, entry)` unique, `QuestionState(user, due_date)`, `XpEvent(user, local_date)`, `TrackEntry(track, position)`, a trigram index on `Entry.title`.
+**Indexes to add from the start.** `EntryProgress(user, entry)` unique, `QuestionState(user, due_date)`, `XpEvent(user, local_date)`, `TrackEntry(track, entry)` unique, a trigram index on `Entry.title`.
 
 **Why a ledger for XP.** XP values and the level curve are explicitly "starting values" (scope header). With a ledger plus derived totals, retuning is a code or setting change, not a data migration.
 
@@ -227,7 +227,7 @@ The stock Django admin, extended. All admin text is English.
 - Markdown field with live preview, using the shared renderer.
 - Publish guard: the entry page's question formset blocks `status=published` when the entry would have fewer than 6 questions (it sees questions added or deleted in the same save, which `Entry.clean()` cannot). Questions are added and deleted only on the entry page; the all-questions view is browse and edit only, so the guard cannot be bypassed.
 - Question editing through plain per-type fields (options one per line with `*` marking the correct one, a true/false choice, items one per line, accepted answers one per line), converted to the JSON payload on save.
-- Track and gate editing with ordering (drag-and-drop or a position field), plus the same-year `year_order`.
+- Track and gate editing. A track's page lists its events in unlock order with their dates and `year_order`. Saving a track or an event shows a warning (`content/track_order.py`) when two events in a track share a date and a `year_order`, so only the title decides their order.
 - **Unlock graph view** (Tracks → Unlock graph, `/admin/content/track/unlock-graph/`): a read-only page. `progress/graph_check.py` simulates a learner who reads everything as soon as it unlocks, using the real unlock engine, so anything never reached is unreachable for everyone; it also finds dependency cycles (Tarjan) and explains each blocked entry (cycle, waiting for an unreachable event, finale threshold, non-event with no or only unreachable linked events). Warnings, which do not block, cover events in no track and gates on draft events. The events are drawn as a layered SVG rendered on the server (`content/graph_layout.py`): solid lines for track order, dashed for gates, dotted for the opening track before other tracks.
 - User tools (`accounts/tools.py`): reset progress and shift date forward, as admin actions on the user list, each with a confirmation page. Reset removes progress, attempts, review state, checks, challenges, XP and streak counters; the account, time zone and date offset stay. Shift adds 1 to 365 days to `date_offset_days`; to undo, edit the offset on the user page.
 - Finale percentage and other tunables edited through the `AppSetting` model.

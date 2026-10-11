@@ -132,8 +132,8 @@ def test_admin_page(admin_client: Client) -> None:
     regular = Track.objects.filter(kind=REGULAR).first()
     assert regular is not None
     a, b, gated = _event("a"), _event("b"), _event("gated")
-    TrackEntry.objects.create(track=opening, entry=a, position=1)
-    TrackEntry.objects.create(track=regular, entry=b, position=1)
+    TrackEntry.objects.create(track=opening, entry=a)
+    TrackEntry.objects.create(track=regular, entry=b)
     GateRequirement.objects.create(event=gated, required_event=_event("draft", published=False))
     person = Entry.objects.create(
         type=Entry.Type.PERSON,

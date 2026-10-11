@@ -61,7 +61,7 @@ def test_sample_track_events_are_chronological() -> None:
     for track_id in TrackEntry.objects.values_list("track_id", flat=True).distinct():
         dates = [
             item.entry.event_date
-            for item in TrackEntry.objects.filter(track_id=track_id).order_by("position")
+            for item in TrackEntry.objects.filter(track_id=track_id)
         ]
         known = [d for d in dates if d is not None]
         assert len(known) == len(dates), track_id

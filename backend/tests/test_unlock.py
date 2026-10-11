@@ -172,8 +172,10 @@ def _read(user: User, *entries: Entry) -> None:
 
 
 def _place(track: Track, *entries: Entry) -> None:
-    for position, entry in enumerate(entries, start=1):
-        TrackEntry.objects.create(track=track, entry=entry, position=position)
+    """Put same-year events in the track in the given order, via year_order (scope 2.3)."""
+    for year_order, entry in enumerate(entries, start=1):
+        Entry.objects.filter(pk=entry.pk).update(year_order=year_order)
+        TrackEntry.objects.create(track=track, entry=entry)
 
 
 @pytest.fixture
@@ -186,13 +188,35 @@ def opening(db: None) -> Track:
     return Track.objects.get(kind=Track.Kind.OPENING)
 
 
-def test_load_graph_orders_tracks_by_position(opening: Track) -> None:
-    a, b, c = _entry("a"), _entry("b"), _entry("c")
-    TrackEntry.objects.create(track=opening, entry=c, position=3)
-    TrackEntry.objects.create(track=opening, entry=a, position=1)
-    TrackEntry.objects.create(track=opening, entry=b, position=2)
+def _dated(slug: str, on: date, year_order: int = 0, title: str = "") -> Entry:
+    entry = _entry(slug)
+    Entry.objects.filter(pk=entry.pk).update(
+        event_date=on, year_order=year_order, title=title or slug
+    )
+    return entry
+
+
+def test_load_graph_orders_tracks_by_date(opening: Track) -> None:
+    # Scope 2.3, 3.2: year, then year_order, then the date within the year.
+    later_year = _dated("later-year", date(1777, 1, 1))
+    first_year = _dated("first-year", date(1762, 6, 1))
+    autumn = _dated("autumn", date(1770, 10, 1))
+    spring = _dated("spring", date(1770, 3, 1))
+    set_last = _dated("set-last", date(1770, 1, 1), year_order=1)
+    for entry in (later_year, first_year, autumn, spring, set_last):
+        TrackEntry.objects.create(track=opening, entry=entry)
     (track,) = load_graph().tracks
-    assert track == TrackOrder(OPENING, (a.pk, b.pk, c.pk))
+    expected = (first_year, spring, autumn, set_last, later_year)
+    assert track == TrackOrder(OPENING, tuple(e.pk for e in expected))
+
+
+def test_load_graph_breaks_full_ties_by_title(opening: Track) -> None:
+    b = _dated("b", date(1770, 1, 1), title="Б")
+    a = _dated("a", date(1770, 1, 1), title="А")
+    for entry in (b, a):
+        TrackEntry.objects.create(track=opening, entry=entry)
+    (track,) = load_graph().tracks
+    assert track == TrackOrder(OPENING, (a.pk, b.pk))
 
 
 def test_load_graph_reads_finale_setting(db: None) -> None:

@@ -270,7 +270,7 @@ def test_dashboard(client: Client, user: User) -> None:
         status=Entry.Status.PUBLISHED,
     )
     TrackEntry.objects.create(
-        track=Track.objects.get(kind=Track.Kind.OPENING), entry=entry, position=1
+        track=Track.objects.get(kind=Track.Kind.OPENING), entry=entry
     )
     for days in [-3, 0, 1]:
         question = Question.objects.create(

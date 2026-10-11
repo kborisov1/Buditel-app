@@ -40,8 +40,10 @@ def _entry(
 
 
 def _place(track: Track, *entries: Entry) -> None:
-    for position, entry in enumerate(entries, start=1):
-        TrackEntry.objects.create(track=track, entry=entry, position=position)
+    """Put same-year events in the track in the given order, via year_order (scope 2.3)."""
+    for year_order, entry in enumerate(entries, start=1):
+        Entry.objects.filter(pk=entry.pk).update(year_order=year_order)
+        TrackEntry.objects.create(track=track, entry=entry)
 
 
 def _read(user: User, *entries: Entry) -> None:

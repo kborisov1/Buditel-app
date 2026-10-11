@@ -8,6 +8,17 @@ from django.db.models.functions import ExtractYear
 from .rules import entry_field_errors
 
 
+def chronological(prefix: str = "") -> list[Any]:
+    """Order by year, then the author's year_order, then date (scope 2.3). Prefix a
+    relation path such as "entry__" to order related rows by their entry."""
+    return [
+        ExtractYear(f"{prefix}event_date"),
+        f"{prefix}year_order",
+        f"{prefix}event_date",
+        f"{prefix}title",
+    ]
+
+
 class Entry(models.Model):
     class Type(models.TextChoices):
         EVENT = "event"
@@ -56,8 +67,7 @@ class Entry(models.Model):
 
     class Meta:
         verbose_name_plural = "entries"
-        # Within a year the author's year_order wins over the exact date (scope 2.3).
-        ordering = [ExtractYear("event_date"), "year_order", "event_date", "title"]
+        ordering = chronological()
         indexes = [
             GinIndex(fields=["title"], name="entry_title_trgm", opclasses=["gin_trgm_ops"]),
         ]
@@ -185,7 +195,7 @@ class Phase(models.Model):
 
 
 class Track(models.Model):
-    """Unlock track (scope 3.2). Events unlock strictly in position order within a track."""
+    """Unlock track (scope 3.2). Events unlock strictly in chronological order within a track."""
 
     class Kind(models.TextChoices):
         REGULAR = "regular"
@@ -212,6 +222,8 @@ class Track(models.Model):
 
 
 class TrackEntry(models.Model):
+    """Track membership. The order within a track follows the event's date (scope 3.2)."""
+
     track = models.ForeignKey(Track, on_delete=models.CASCADE, related_name="items")
     entry = models.ForeignKey(
         Entry,
@@ -220,18 +232,16 @@ class TrackEntry(models.Model):
         limit_choices_to=EVENTS_ONLY,
         verbose_name="event",
     )
-    position = models.PositiveSmallIntegerField()
 
     class Meta:
         verbose_name = "track event"
-        ordering = ["track", "position"]
+        ordering = ["track", *chronological("entry__"), "entry_id"]
         constraints = [
-            models.UniqueConstraint(fields=["track", "position"], name="unique_track_position"),
             models.UniqueConstraint(fields=["track", "entry"], name="unique_track_entry"),
         ]
 
     def __str__(self) -> str:
-        return f"{self.track} #{self.position}: {self.entry}"
+        return f"{self.track}: {self.entry}"
 
 
 class GateRequirement(models.Model):

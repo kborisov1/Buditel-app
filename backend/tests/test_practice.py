@@ -83,7 +83,7 @@ def test_filter_by_track_and_phase(client: Client, user: User) -> None:
     track = Track.objects.filter(kind=Track.Kind.REGULAR).first()
     assert track is not None
     in_track = _entry("in-track", on=date(1845, 1, 1))
-    TrackEntry.objects.create(track=track, entry=in_track, position=1)
+    TrackEntry.objects.create(track=track, entry=in_track)
     person = _entry("person", Entry.Type.PERSON)
     EntryRelation.objects.create(from_entry=person, to_entry=in_track)
     other = _entry("other", on=date(1800, 1, 1))

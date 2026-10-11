@@ -18,10 +18,13 @@ interface Props {
   body: string;
   links: Record<string, EntryLink>;
   images?: Record<string, EntryImage>;
+  /** Handles a plain left click on an entry link, e.g. with the router. Without it links are
+   * ordinary anchors, as in the admin preview. */
+  onNavigate?: (href: string) => void;
 }
 
 /** Entry body renderer shared by the learner app and the admin preview (architecture 8). */
-export default function EntryMarkdown({ body, links, images = {} }: Props) {
+export default function EntryMarkdown({ body, links, images = {}, onNavigate }: Props) {
   const components: Components = {
     span({ node, children, ...rest }) {
       const position = node?.properties.dataEntryImage;
@@ -46,7 +49,16 @@ export default function EntryMarkdown({ body, links, images = {} }: Props) {
       const text = typeof label === "string" && label ? label : target.title;
       if (target.href === null) return <span className="entry-link-locked">{text}</span>;
       return (
-        <a className="entry-link" href={target.href}>
+        <a
+          className="entry-link"
+          href={target.href}
+          onClick={(event) => {
+            const modified = event.metaKey || event.ctrlKey || event.shiftKey || event.altKey;
+            if (!onNavigate || event.button !== 0 || modified) return; // browser handles the rest
+            event.preventDefault();
+            onNavigate(target.href!);
+          }}
+        >
           {text}
         </a>
       );

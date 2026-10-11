@@ -267,7 +267,7 @@ Title search (scope 7) uses a Postgres `pg_trgm` index with `ILIKE` and similari
 | `make types` | regenerate frontend API types from the OpenAPI schema |
 | `make test` | backend pytest, frontend unit tests |
 | `make backup` | `pg_dump` to `backups/` with a timestamp, plus a copy of `media/` |
-| `make seed` | load a small sample dataset (a few events, one track) for development |
+| `make seed` | load a small sample dataset (six published events, five of them one per track, with questions and one gate) for development. Fixture: `backend/apps/content/fixtures/sample.json` |
 
 Backups matter even locally, because the authored content is the project's main asset. `backups/` and `.env` are git-ignored. Content can additionally be exported to JSON fixtures (`dumpdata`) and committed, giving versioned history of what you write.
 

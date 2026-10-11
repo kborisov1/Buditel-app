@@ -279,14 +279,27 @@ def test_fail_then_pass_is_first_pass(
     assert _submit(client, _start(client)).json()["xp_awarded"] == 50
 
 
-def test_retake_gives_reduced_xp(client: Client, user: User, entries: tuple[Entry, Entry]) -> None:
+def test_passed_entry_cannot_be_retaken(
+    client: Client, user: User, entries: tuple[Entry, Entry]
+) -> None:
     _submit(client, _start(client))
-    # The first pass already reached the daily goal, so the retake gets the reduced rate.
-    assert _submit(client, _start(client)).json()["xp_awarded"] == 4
-    assert XpEvent.objects.filter(kind="quiz_retake").count() == 1
-    assert EntryProgress.objects.get(user=user).passed_at == NOW
+    response = client.post("/api/entries/first/quiz")
+    assert response.status_code == 409
+    assert QuizAttempt.objects.count() == 1
+    assert XpEvent.objects.filter(kind="quiz_retake").count() == 0
+
+
+def test_second_open_attempt_cannot_pass_a_read_entry(
+    client: Client, user: User, entries: tuple[Entry, Entry]
+) -> None:
+    stale = _start(client)  # e.g. a second tab opened before the first pass
+    _submit(client, _start(client))
+    response = _submit(client, stale)
+    assert response.status_code == 409
     user.profile.refresh_from_db()
     assert user.profile.completed_entries_count == 1
+    assert XpEvent.objects.filter(kind="quiz_first_pass").count() == 1
+    assert EntryProgress.objects.get(user=user).passed_at == NOW
 
 
 def test_settings_drive_pass_mark_and_xp(client: Client, entries: tuple[Entry, Entry]) -> None:

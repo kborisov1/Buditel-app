@@ -41,7 +41,7 @@ export default function TimelinePage() {
                   >
                     {t("timeline.open")}
                   </Link>
-                  {current.progress ? (
+                  {current.progress === "in_progress" ? (
                     <Link
                       to={`/entries/${current.slug}/quiz`}
                       className="mt-2 block rounded border border-mocha px-4 py-2 text-center"
@@ -49,13 +49,15 @@ export default function TimelinePage() {
                       {t("timeline.quiz")}
                     </Link>
                   ) : (
-                    <button
-                      disabled
-                      title={t("timeline.quizHint")}
-                      className="mt-2 block w-full rounded border border-mocha px-4 py-2 opacity-40"
-                    >
-                      {t("timeline.quiz")}
-                    </button>
+                    current.progress === null && (
+                      <button
+                        disabled
+                        title={t("timeline.quizHint")}
+                        className="mt-2 block w-full rounded border border-mocha px-4 py-2 opacity-40"
+                      >
+                        {t("timeline.quiz")}
+                      </button>
+                    )
                   )}
                 </>
               )}

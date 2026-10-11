@@ -38,6 +38,10 @@ class AlreadySubmitted(QuizError):
     pass
 
 
+class AlreadyPassed(QuizError):
+    """The entry is already read; its quiz is taken once (scope 4)."""
+
+
 class InvalidAnswers(QuizError):
     pass
 
@@ -58,8 +62,11 @@ def draw(question_ids: list[int], missed: set[int], weight: int, rng: random.Ran
 def start_quiz(user: User, entry: Entry, rng: random.Random | None = None) -> QuizAttempt:
     if not is_unlocked(user, entry.pk):
         raise EntryLocked
-    if not EntryProgress.objects.filter(user=user, entry=entry).exists():
+    progress = EntryProgress.objects.filter(user=user, entry=entry).first()
+    if progress is None:
         raise ReadingNotFinished
+    if progress.state == EntryProgress.State.READ:
+        raise AlreadyPassed
     pool = list(entry.questions.values_list("id", flat=True))
     chosen = draw(
         pool,
@@ -97,6 +104,11 @@ def submit_quiz(user: User, attempt_id: int, answers: dict[int, Any]) -> QuizRes
         attempt = QuizAttempt.objects.select_for_update().get(pk=attempt_id, user=user)
         if attempt.submitted_at is not None:
             raise AlreadySubmitted
+        # An attempt opened earlier (second tab) must not pass an entry that is already read.
+        if EntryProgress.objects.filter(
+            user=user, entry=attempt.entry, state=EntryProgress.State.READ
+        ).exists():
+            raise AlreadyPassed
         items = list(attempt.items.select_related("question"))
         error = answer_set_error([i.question for i in items], answers)
         if error:
@@ -130,21 +142,21 @@ def submit_quiz(user: User, attempt_id: int, answers: dict[int, Any]) -> QuizRes
 
 
 def _record_pass(user: User, attempt: QuizAttempt) -> int:
-    """Mark the entry read. The first pass gives full XP and counts toward the older-event
-    check (architecture 6.4); later passes are retakes."""
+    """Mark the entry read, award the one-time pass XP, and count it toward the older-event
+    check (architecture 6.4)."""
     progress = EntryProgress.objects.select_for_update().get(user=user, entry=attempt.entry)
-    first_pass = progress.state != EntryProgress.State.READ
-    if first_pass:
-        progress.state = EntryProgress.State.READ
-        progress.passed_at = attempt.submitted_at
-        progress.save(update_fields=["state", "passed_at"])
-        Profile.objects.filter(user=user).update(
-            completed_entries_count=F("completed_entries_count") + 1
-        )
-        kind, amount = XpEvent.Kind.QUIZ_FIRST_PASS, get_setting("xp_quiz_first_pass")
-    else:
-        kind, amount = XpEvent.Kind.QUIZ_RETAKE, get_setting("xp_quiz_retake")
-    event = xp.award(user, kind, amount, reference=f"quiz_attempt:{attempt.pk}")
+    progress.state = EntryProgress.State.READ
+    progress.passed_at = attempt.submitted_at
+    progress.save(update_fields=["state", "passed_at"])
+    Profile.objects.filter(user=user).update(
+        completed_entries_count=F("completed_entries_count") + 1
+    )
+    event = xp.award(
+        user,
+        XpEvent.Kind.QUIZ_FIRST_PASS,
+        get_setting("xp_quiz_first_pass"),
+        reference=f"quiz_attempt:{attempt.pk}",
+    )
     return event.amount if event else 0
 
 

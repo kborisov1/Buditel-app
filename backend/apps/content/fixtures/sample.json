@@ -1,6 +1,104 @@
 [
   {
     "model": "content.entry",
+    "pk": 1,
+    "fields": {
+      "type": "event",
+      "slug": "napisvane-na-istoriya-slavyanoblgarska",
+      "title": "Написване на История Славянобългарска",
+      "summary": "Обобщение",
+      "body_md": "Написване на историята.",
+      "event_date": "1762-06-02",
+      "date_certainty": "estimated",
+      "date_note_old_style": "",
+      "region": "",
+      "importance": "major",
+      "year_order": 0,
+      "status": "published",
+      "created_at": "2026-10-09T20:21:30.929Z",
+      "updated_at": "2026-10-09T20:35:04.655Z"
+    }
+  },
+  {
+    "model": "quizzes.question",
+    "pk": 1,
+    "fields": {
+      "entry": 1,
+      "type": "multiple_choice",
+      "prompt": "Кой е написал \"История Славянобългарска\"?",
+      "payload": {"options": ["Софроний Врачански", "Неофит Рилски", "Паисий Хилендарски", "Петър Берон"], "correct": 2},
+      "explanation": "Паисий написва \"История Славянобългарска\" през 1762г. в Хилендарския манастир.",
+      "created_at": "2026-10-09T20:35:04.659Z",
+      "updated_at": "2026-10-09T20:35:04.659Z"
+    }
+  },
+  {
+    "model": "quizzes.question",
+    "pk": 131,
+    "fields": {
+      "entry": 1,
+      "type": "true_false",
+      "prompt": "Паисий Хилендарски написва „История Славянобългарска“ в Хилендарския манастир.",
+      "payload": {"answer": true},
+      "explanation": "Паисий работи в Хилендарския манастир на Света гора.",
+      "created_at": "2026-10-11T00:00:00Z",
+      "updated_at": "2026-10-11T00:00:00Z"
+    }
+  },
+  {
+    "model": "quizzes.question",
+    "pk": 132,
+    "fields": {
+      "entry": 1,
+      "type": "multiple_choice",
+      "prompt": "На какъв език е написана „История Славянобългарска“?",
+      "payload": {"options": ["Гръцки", "Славянобългарски", "Френски", "Турски"], "correct": 1},
+      "explanation": "Текстът е написан на славянобългарски, ранна форма на българския книжовен език.",
+      "created_at": "2026-10-11T00:00:00Z",
+      "updated_at": "2026-10-11T00:00:00Z"
+    }
+  },
+  {
+    "model": "quizzes.question",
+    "pk": 133,
+    "fields": {
+      "entry": 1,
+      "type": "date_ordering",
+      "prompt": "Подредете събитията хронологично.",
+      "payload": {"items": ["Откриване на светското училище в Габрово (1835)", "Написване на История Славянобългарска (1762)", "Априлското въстание (1876)"]},
+      "explanation": "Историята (1762) предхожда училището в Габрово (1835) и Априлското въстание (1876).",
+      "created_at": "2026-10-11T00:00:00Z",
+      "updated_at": "2026-10-11T00:00:00Z"
+    }
+  },
+  {
+    "model": "quizzes.question",
+    "pk": 134,
+    "fields": {
+      "entry": 1,
+      "type": "fill_blank",
+      "prompt": "Паисий написва историята през ___ г.",
+      "payload": {"answers": ["1762"]},
+      "explanation": "Историята е написана през 1762 г.",
+      "created_at": "2026-10-11T00:00:00Z",
+      "updated_at": "2026-10-11T00:00:00Z"
+    }
+  },
+  {
+    "model": "quizzes.question",
+    "pk": 135,
+    "fields": {
+      "entry": 1,
+      "type": "fill_blank",
+      "prompt": "Паисий е монах в ___ манастир на Света гора.",
+      "payload": {"answers": ["Хилендарския"]},
+      "explanation": "Паисий е монах в Хилендарския манастир.",
+      "created_at": "2026-10-11T00:00:00Z",
+      "updated_at": "2026-10-11T00:00:00Z"
+    }
+  },
+  {
+    "model": "content.entry",
     "pk": 101,
     "fields": {
       "type": "event",

@@ -12,7 +12,8 @@ def test_sample_fixture_loads_publishable_content() -> None:
     call_command("loaddata", "sample", verbosity=0)
 
     events = Entry.objects.filter(status=Entry.Status.PUBLISHED, type=Entry.Type.EVENT)
-    assert events.count() == 5
+    assert events.count() == 6
+    # The first event is published but in no track, so only five events are tracked.
     assert TrackEntry.objects.filter(entry__in=events).count() == 5
     assert GateRequirement.objects.count() == 1
 

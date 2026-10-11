@@ -1,8 +1,8 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { api } from "../../api/client";
+import { api, type EntryFilters } from "../../api/client";
 import { useRefreshLearnerData } from "../progress";
 
-export function useEntries(filters: { type?: string; q?: string } = {}) {
+export function useEntries(filters: EntryFilters = {}) {
   return useQuery({
     queryKey: ["entries", filters],
     queryFn: () => api.entries(filters),

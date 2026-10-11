@@ -248,6 +248,8 @@ Title search (scope 7) uses a Postgres `pg_trgm` index with `ILIKE` and similari
 
 ---
 
+The top bar calls `/api/search` as the user types (debounced, from 2 characters, the backend minimum) and lists the best matches in a dropdown. Locked entries show as plain titles, and Enter without a selection opens the library filtered by the text. The library's track, period and region filters use `/api/entries`; region options come from the entries the user can see, since a locked entry's region is not sent.
+
 ## 12. Local development (macOS)
 
 **Prerequisites** (via Homebrew): Python 3.12, `uv` (dependency and virtualenv management), Node LTS, and Docker Desktop (OrbStack or Colima also work).

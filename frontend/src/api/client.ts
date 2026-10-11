@@ -6,6 +6,13 @@ export type User = Schemas["UserOut"];
 export type EntrySummary = Schemas["EntrySummaryOut"];
 export type LockedEntry = Schemas["LockedEntryOut"];
 export type EntryListItem = EntrySummary | LockedEntry;
+export interface EntryFilters {
+  type?: string;
+  q?: string;
+  track?: string;
+  phase?: string;
+  region?: string;
+}
 export type EntryDetail = Schemas["EntryDetailOut"];
 export type EntryType = Schemas["Type"];
 export type Quiz = Schemas["QuizOut"];
@@ -66,13 +73,15 @@ export const api = {
     });
   },
   logout: () => request<void>("/auth/logout", { method: "POST" }),
-  entries(filters: { type?: string; q?: string } = {}) {
+  entries(filters: EntryFilters = {}) {
     const params = new URLSearchParams();
-    if (filters.type) params.set("type", filters.type);
-    if (filters.q) params.set("q", filters.q);
+    for (const [key, value] of Object.entries(filters)) {
+      if (value) params.set(key, value);
+    }
     const query = params.toString();
     return request<EntryListItem[]>(`/entries${query ? `?${query}` : ""}`);
   },
+  search: (q: string) => request<EntryListItem[]>(`/search?q=${encodeURIComponent(q)}`),
   entry: (slug: string) =>
     request<EntryDetail | LockedEntry>(`/entries/${encodeURIComponent(slug)}`),
   finishedReading: (slug: string) =>

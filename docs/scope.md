@@ -252,6 +252,7 @@ Primary action: one **"Start today's session"** button that builds a queue: due 
 - Write questions inside each entry. Searchable "all questions" view.
 - Define track membership, order within tracks and within the same year, and gate events.
 - Create and reset test accounts. Reset a user's progress. **Shift a user's date forward** to test streaks and review schedules.
+- Resetting progress removes everything the user has done (reading, quizzes, reviews, XP, streaks) but keeps the account, its time zone and any date shift.
 - **Activity logging**, searchable and filterable by user, date, and event type. Covers user activity (logins, quizzes, XP), content changes, and errors.
 - Unlock graph visual (see 3.4).
 - Setting for the Finale unlock percentage.

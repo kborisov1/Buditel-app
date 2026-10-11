@@ -88,3 +88,15 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR.parent / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Server errors also go to the activity log (architecture 10).
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "activity": {"class": "apps.activity.handlers.ActivityLogHandler", "level": "ERROR"},
+    },
+    "loggers": {
+        "django.request": {"handlers": ["activity"], "level": "ERROR"},
+    },
+}

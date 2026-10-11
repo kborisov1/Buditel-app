@@ -225,6 +225,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Profile */
+        get: operations["apps_gamification_api_profile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/review": {
         parameters: {
             query?: never;
@@ -645,6 +662,59 @@ export interface components {
             /** Max Freezes */
             max_freezes: number;
         };
+        /** HistoryEntryOut */
+        HistoryEntryOut: {
+            /** Slug */
+            slug: string;
+            /** Title */
+            title: string;
+        };
+        /** HistoryItemOut */
+        HistoryItemOut: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "quiz" | "check";
+            /**
+             * At
+             * Format: date-time
+             */
+            at: string;
+            /** Score */
+            score: number;
+            /** Total */
+            total: number;
+            /** Passed */
+            passed: boolean | null;
+            /** Xp Awarded */
+            xp_awarded: number;
+            entry: components["schemas"]["HistoryEntryOut"] | null;
+        };
+        /** ProfileOut */
+        ProfileOut: {
+            /** Email */
+            email: string;
+            level: components["schemas"]["LevelOut"];
+            streak: components["schemas"]["StreakOut"];
+            /** Tracks */
+            tracks: components["schemas"]["TrackProgressOut"][];
+            /** History */
+            history: components["schemas"]["HistoryItemOut"][];
+        };
+        /** TrackProgressOut */
+        TrackProgressOut: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Kind */
+            kind: string;
+            /** Read */
+            read: number;
+            /** Total */
+            total: number;
+        };
         /** ReviewQueueOut */
         ReviewQueueOut: {
             /** Questions */
@@ -1035,6 +1105,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DashboardOut"];
+                };
+            };
+        };
+    };
+    apps_gamification_api_profile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfileOut"];
                 };
             };
         };

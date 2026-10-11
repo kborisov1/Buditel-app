@@ -226,6 +226,7 @@ Primary action: one **"Start today's session"** button that builds a queue: due 
 
 ### 7.6 Profile
 - v1: level and title, streak, XP, per-track progress, history of results.
+- Per-track progress counts read events out of the track's published events. The history lists submitted quizzes and older-event checks, newest first (the latest 50).
 - **[LATER]**: list of read entries, weak-topics overview, per-topic mastery.
 
 ---

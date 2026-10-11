@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import type { EntryDetail } from "../../api/client";
 import EntryMarkdown, { type EntryImage, type EntryLink } from "../../components/markdown/EntryMarkdown";
 import QueryStatus from "../../components/Status";
@@ -30,6 +30,7 @@ export default function EntryPage() {
 function EntryView({ entry }: { entry: EntryDetail }) {
   const { t } = useTranslation();
   const finish = useFinishedReading(entry.slug);
+  const navigate = useNavigate();
 
   const links: Record<string, EntryLink> = Object.fromEntries(
     Object.entries(entry.links).map(([slug, link]) => [
@@ -75,8 +76,8 @@ function EntryView({ entry }: { entry: EntryDetail }) {
             </figcaption>
           </figure>
         )}
-        <div className="entry-body my-6 font-serif text-lg leading-relaxed">
-          <EntryMarkdown body={entry.body_md} links={links} images={images} />
+        <div className="entry-body my-6">
+          <EntryMarkdown body={entry.body_md} links={links} images={images} onNavigate={navigate} />
         </div>
         {entry.sources.length > 0 && (
           <section className="mt-8 border-t border-cappuccino pt-4">

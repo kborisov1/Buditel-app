@@ -1,5 +1,5 @@
-import { render } from "@testing-library/react";
-import { expect, test } from "vitest";
+import { fireEvent, render } from "@testing-library/react";
+import { expect, test, vi } from "vitest";
 import EntryMarkdown, { type EntryLink } from "./EntryMarkdown";
 
 const links: Record<string, EntryLink> = {
@@ -65,4 +65,22 @@ test("keeps an image and a link apart", () => {
     .container.innerHTML;
   expect(out).toContain("<img");
   expect(out).toContain('class="entry-link"');
+});
+
+test("a plain click on a link goes through onNavigate instead of reloading", () => {
+  const onNavigate = vi.fn();
+  const { container } = render(
+    <EntryMarkdown body="[[paisiy]]" links={links} onNavigate={onNavigate} />,
+  );
+  expect(fireEvent.click(container.querySelector("a")!)).toBe(false); // default prevented
+  expect(onNavigate).toHaveBeenCalledWith("/entries/1");
+});
+
+test("modified clicks are left to the browser", () => {
+  const onNavigate = vi.fn();
+  const { container } = render(
+    <EntryMarkdown body="[[paisiy]]" links={links} onNavigate={onNavigate} />,
+  );
+  expect(fireEvent.click(container.querySelector("a")!, { ctrlKey: true })).toBe(true);
+  expect(onNavigate).not.toHaveBeenCalled();
 });

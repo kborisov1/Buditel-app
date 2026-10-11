@@ -90,7 +90,7 @@ The author can define gate events in the admin panel: an event that unlocks only
 - Event order is strict inside a track.
 - Non-event entries (people, places, institutions, works, concepts) **unlock automatically when a linked event is read**. "Linked" means a structured relation set by the author; a `[[entry-name]]` mention in the body does not count.
 - Locked entries stay visible in lists and on the timeline with minimal information:
-  - Timeline: title and date.
+  - Timeline: title and date. Importance and date certainty are also sent, but only to decide the zoom level at which the event appears and how its date is written.
   - Lists: title only.
   - Related sidebar: title only.
 - Locked entries cannot be read.

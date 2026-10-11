@@ -119,7 +119,7 @@ Business rules live in plain service modules inside each app (for example `progr
 - `QuestionState`: user, question, SRS box (0 to 4 mapping to 1, 3, 7, 14, 30 days), due date, miss count, last answered. Created on first miss (scope 5).
 - `XpEvent`: append-only ledger (user, kind, amount, local date, reference). Total XP and level are derived by summing.
 - `OlderEventCheck` and `OlderEventCheckQuestion`: one check per user and milestone (3, 6, ...), the drawn question IDs, answers, score, XP awarded. A check created with no questions counts as skipped.
-- `DailyChallenge`: user, local date, fixed question IDs, completion state.
+- `DailyChallenge` and `DailyChallengeQuestion`: user, local date, completion time; per question the position, answer, result and answer time.
 - `ActivityLog`: user (nullable), timestamp, category (user, content, error), event type, JSONB details. Indexed on user, timestamp and type.
 
 **Indexes to add from the start.** `EntryProgress(user, entry)` unique, `QuestionState(user, due_date)`, `XpEvent(user, local_date)`, `TrackEntry(track, position)`, a trigram index on `Entry.title`.
@@ -182,9 +182,9 @@ Evaluated lazily, with no scheduler, by `DailyActivityMiddleware` on the user's 
 
 ### 6.7 Daily challenge and weak topics (scope 6.5, 6.6)
 
-- Weak-topic score per entry combines the user's miss rate on that entry's questions with recency (recent misses weigh more). It is computed on demand from `QuizAttemptQuestion` and `QuestionState`, and aggregated to track level for display.
-- The daily challenge is generated on the first request of the local day: about 10 questions, picked from the weakest entries among unlocked ones, then saved as a `DailyChallenge` row so it stays fixed for the day.
-- The challenge is gated to unlocked entries only. If the user has too few weak topics, it fills from general unlocked questions.
+- Weak-topic score per entry (`quizzes/weak_topics.py`) is a recency-weighted miss rate: graded quiz, older-event check and challenge answers, each weighted `0.5 ** (age_days / 14)`. It is computed on demand. The per-track roll-up for display waits for the weak-topics overview, which is **[LATER]** (scope 7.6).
+- The daily challenge (`quizzes/challenge.py`) is generated on the first `GET /api/daily-challenge` of the local day: 10 questions taken in turn from the weakest read entries (missed questions first), filled from other read entries, then saved so it stays fixed for the day.
+- `POST /api/daily-challenge/answer` grades one question of today's challenge (each once). Correct gives `xp_challenge_correct`, a miss goes to review, and the last answer completes the challenge and awards `xp_challenge_bonus`, all through the daily-goal rules.
 
 ### 6.7 Practice (scope 7.5)
 

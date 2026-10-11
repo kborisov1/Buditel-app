@@ -175,9 +175,13 @@ The author can define gate events in the admin panel: an event that unlocks only
 
 ### 6.5 Daily challenge
 - In v1. A **fixed set** of about 10 questions, selected automatically from the user's **weak topics**, with a completion bonus. It only selects existing hand-written questions, so no question generation is needed. A fixed set has a clear end, is easy to explain, and works with the daily goal.
+- Draws only from entries the user has read (like practice). Takes one question at a time from the weakest entries in turn, questions the user missed before first, then fills up from other read entries. With nothing read yet there is no challenge.
+- Answered one by one with immediate feedback: right or wrong, the correct answer and the explanation. Misses enter the review schedule. It is complete when every question is answered; there is no pass mark.
+- XP: **2 XP** per correct answer and a **10 XP** completion bonus (both admin settings).
 
 ### 6.6 Weak topics
 - Measured **per entry**, from the user's question-level accuracy (how often questions from that entry are missed and how recently).
+- v1 formula: misses ÷ answers over the user's quiz, older-event check and daily challenge answers for the entry, where each answer's weight halves every **14 days**.
 - Rolled up to **per-track** for display and for choosing the daily challenge.
 - Optional theme tags added by the author **[LATER]**.
 

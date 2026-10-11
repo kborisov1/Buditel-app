@@ -4,6 +4,7 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { afterEach, expect, test, vi } from "vitest";
 import "../i18n";
 import LibraryPage from "./library/LibraryPage";
+import QuestionStepper from "./quiz/QuestionStepper";
 import QuizPage from "./quiz/QuizPage";
 
 function renderAt(path: string, element: React.ReactNode, route: string) {
@@ -64,4 +65,27 @@ test("quiz submits answers and shows the failed score only", async () => {
     { question_id: 1, answer: true },
     { question_id: 2, answer: ["А", "Б"] },
   ]);
+});
+
+test("stepper shows feedback after an answer and the entry link only when given", async () => {
+  const questions = [{ id: 1, type: "true_false", prompt: "Въпрос" }];
+  const answered = vi.fn().mockResolvedValue({
+    correct: false,
+    explanation: "Защото така.",
+    xp: 0,
+    entry: { slug: "e", title: "Записът" },
+  });
+  renderAt(
+    "/",
+    <QuestionStepper questions={questions} onAnswer={answered} finished={<p>край</p>} />,
+    "/",
+  );
+  const answer = screen.getByRole("button", { name: "Отговори" });
+  expect((answer as HTMLButtonElement).disabled).toBe(true);
+  fireEvent.click(screen.getByLabelText("Вярно"));
+  fireEvent.click(answer);
+  expect(await screen.findByText("Защото така.")).toBeTruthy();
+  expect(screen.getByRole("link", { name: /Записът/ })).toBeTruthy();
+  fireEvent.click(screen.getByRole("button", { name: "Завърши" }));
+  expect(await screen.findByText("край")).toBeTruthy();
 });

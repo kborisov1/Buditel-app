@@ -11,6 +11,18 @@ export type EntryType = Schemas["Type"];
 export type Quiz = Schemas["QuizOut"];
 export type QuizQuestion = Schemas["QuestionOut"];
 export type QuizAnswer = Schemas["AnswerIn"]["answer"];
+export type Timeline = Schemas["TimelineOut"];
+export type TimelineEvent = Timeline["events"][number];
+export type Dashboard = Schemas["DashboardOut"];
+export type Profile = Schemas["ProfileOut"];
+export type Session = Schemas["SessionOut"];
+export type SessionStep = Session["steps"][number];
+export type ReviewResult = Schemas["ReviewResultOut"];
+export type Check = Schemas["CheckOut"];
+export type CheckResult = Schemas["CheckResultOut"];
+export type PracticeResult = Schemas["PracticeResultOut"];
+export type DailyChallenge = Schemas["DailyChallengeOut"];
+export type ChallengeResult = Schemas["ChallengeResultOut"];
 export type QuizResult = Schemas["QuizPassedOut"] | Schemas["QuizFailedOut"];
 
 export class ApiError extends Error {
@@ -69,6 +81,40 @@ export const api = {
     }),
   startQuiz: (slug: string) =>
     request<Quiz>(`/entries/${encodeURIComponent(slug)}/quiz`, { method: "POST" }),
+  timeline: () => request<Timeline>("/timeline"),
+  dashboard: () => request<Dashboard>("/dashboard"),
+  profile: () => request<Profile>("/profile"),
+  session: () => request<Session>("/session"),
+  review: () => request<Schemas["ReviewQueueOut"]>("/review"),
+  answerReview: (question_id: number, answer: QuizAnswer) =>
+    request<ReviewResult>("/review/answer", {
+      method: "POST",
+      body: JSON.stringify({ question_id, answer }),
+    }),
+  check: (id: number) => request<Check>(`/checks/${id}`),
+  submitCheck: (id: number, answers: Schemas["AnswerIn"][]) =>
+    request<CheckResult>(`/checks/${id}/submit`, {
+      method: "POST",
+      body: JSON.stringify({ answers }),
+    }),
+  practice(filters: { track?: number; phase?: number; count?: number }) {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(filters)) {
+      if (value !== undefined) params.set(key, String(value));
+    }
+    return request<Schemas["PracticeOut"]>(`/practice?${params}`);
+  },
+  answerPractice: (question_id: number, answer: QuizAnswer) =>
+    request<PracticeResult>("/practice/answer", {
+      method: "POST",
+      body: JSON.stringify({ question_id, answer }),
+    }),
+  dailyChallenge: () => request<DailyChallenge>("/daily-challenge"),
+  answerChallenge: (question_id: number, answer: QuizAnswer) =>
+    request<ChallengeResult>("/daily-challenge/answer", {
+      method: "POST",
+      body: JSON.stringify({ question_id, answer }),
+    }),
   submitQuiz: (attemptId: number, answers: Schemas["AnswerIn"][]) =>
     request<QuizResult>(`/quiz-attempts/${attemptId}/submit`, {
       method: "POST",

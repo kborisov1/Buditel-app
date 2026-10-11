@@ -22,6 +22,7 @@ from .models import EntryProgress
 class TrackOrder:
     kind: str
     events: tuple[int, ...]
+    track_id: int = field(default=0, compare=False)
 
 
 @dataclass(frozen=True)
@@ -90,7 +91,7 @@ def load_graph() -> UnlockGraph:
     for track_id, kind, entry_id in rows:
         kinds[track_id] = kind
         track_events[track_id].append(entry_id)
-    tracks = tuple(TrackOrder(kinds[t], tuple(ids)) for t, ids in track_events.items())
+    tracks = tuple(TrackOrder(kinds[t], tuple(ids), t) for t, ids in track_events.items())
 
     gates: dict[int, set[int]] = defaultdict(set)
     gate_rows = GateRequirement.objects.filter(

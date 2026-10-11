@@ -1,0 +1,11 @@
+<table>
+  <thead><tr><th>Entry</th><th>Problem</th></tr></thead>
+  <tbody>
+    {% for issue in rows %}
+      <tr>
+        <td><a href="{% url 'admin:content_entry_change' issue.entry_id %}">{{ issue.title }}</a></td>
+        <td>{{ issue.problem }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>

@@ -1,0 +1,77 @@
+{% extends "admin/base_site.html" %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+  .graph-legend span { display: inline-block; margin-right: 1.5em; }
+  .graph-swatch { display: inline-block; width: 12px; height: 12px; margin-right: 4px; vertical-align: middle; border: 1px solid var(--body-quiet-color); }
+  .graph-wrap { overflow: auto; border: 1px solid var(--hairline-color); margin: 1em 0 2em; background: var(--body-bg); }
+  .graph-wrap svg text { fill: var(--body-fg); font-size: 12px; }
+  .node rect { stroke: var(--body-quiet-color); stroke-width: 1; fill: var(--darkened-bg); }
+  .node.unreachable rect, .graph-swatch.unreachable { fill: #f4c7c3; background: #f4c7c3; }
+  .node.cycle rect, .graph-swatch.cycle { fill: #e8a0d8; background: #e8a0d8; }
+  .node.trackless rect, .graph-swatch.trackless { fill: #fbe3b0; background: #fbe3b0; }
+  .node.unreachable text, .node.cycle text, .node.trackless text { fill: #222; }
+  .edge { fill: none; stroke: var(--body-quiet-color); stroke-width: 1.5; }
+  .edge.gate { stroke: #b0472c; stroke-dasharray: 6 4; }
+  .edge.opening { stroke-dasharray: 2 4; }
+</style>
+{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">Home</a> ›
+  <a href="{% url 'admin:content_track_changelist' %}">Tracks</a> › Unlock graph
+</div>
+{% endblock %}
+
+{% block content %}
+<p>
+  {{ stats.events }} published events, {{ stats.others }} other entries.
+  A learner who reads everything as soon as it unlocks reaches
+  <strong>{{ stats.reachable }} of {{ stats.total }}</strong>.
+  Finale threshold: {{ report.graph.finale_percentage }}% of every track.
+</p>
+
+<h2>Blocking problems ({{ problems|length }})</h2>
+{% if problems %}
+  {% include "admin/content/track/unlock_graph_issues.html" with rows=problems %}
+{% else %}
+  <p>None: every published entry can be reached.</p>
+{% endif %}
+
+<h2>Warnings ({{ warnings|length }})</h2>
+{% if warnings %}
+  {% include "admin/content/track/unlock_graph_issues.html" with rows=warnings %}
+{% else %}
+  <p>None.</p>
+{% endif %}
+
+{% if cycles %}
+  <h2>Cycles</h2>
+  <ul>{% for group in cycles %}<li>{{ group|join:" → " }}</li>{% endfor %}</ul>
+{% endif %}
+
+<h2>Events</h2>
+<p class="graph-legend">
+  <span><span class="graph-swatch"></span>reachable</span>
+  <span><span class="graph-swatch unreachable"></span>unreachable</span>
+  <span><span class="graph-swatch cycle"></span>in a cycle</span>
+  <span><span class="graph-swatch trackless"></span>in no track</span>
+  <span>solid line: track order · dashed: gate · dotted: opening track before other tracks</span>
+</p>
+<div class="graph-wrap">
+  <svg width="{{ layout.width }}" height="{{ layout.height }}" role="img" aria-label="Unlock graph">
+    {% for edge in layout.edges %}<path class="edge {{ edge.kind }}" d="{{ edge.path }}"/>{% endfor %}
+    {% for node in layout.nodes %}
+      <a href="{% url 'admin:content_entry_change' node.entry_id %}">
+        <g class="node {{ node.status }}">
+          <title>{{ node.title }}</title>
+          <rect x="{{ node.x }}" y="{{ node.y }}" width="{{ node_w }}" height="{{ node_h }}" rx="4"/>
+          <text x="{{ node.x|add:8 }}" y="{{ node.y|add:25 }}">{{ node.label }}</text>
+        </g>
+      </a>
+    {% endfor %}
+  </svg>
+</div>
+{% endblock %}

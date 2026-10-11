@@ -6,11 +6,14 @@ from django.contrib import admin
 from django.db.models import Count, QuerySet
 from django.forms import ModelForm
 from django.http import HttpRequest
-from django.urls import reverse
+from django.template.response import TemplateResponse
+from django.urls import URLPattern, path, reverse
 from django.utils.html import format_html
 
+from apps.progress.graph_check import Issue, build_report
 from apps.quizzes.admin import QuestionInline
 
+from .graph_layout import NODE_H, NODE_W, layout
 from .models import (
     Entry,
     EntryRelation,
@@ -171,6 +174,47 @@ class TrackAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
     @admin.display(description="events", ordering="event_count")
     def event_count(self, obj: Track) -> int:
         return int(getattr(obj, "event_count", 0))
+
+    def get_urls(self) -> list[URLPattern]:
+        graph = path(
+            "unlock-graph/",
+            self.admin_site.admin_view(self.unlock_graph_view),
+            name="content_track_unlock_graph",
+        )
+        return [graph, *super().get_urls()]
+
+    def unlock_graph_view(self, request: HttpRequest) -> TemplateResponse:
+        """Read-only dependency graph with unreachable entries and cycles (architecture 9)."""
+        report = build_report()
+        graph = report.graph
+        total = len(graph.events) + len(graph.others)
+        title = report.titles.get
+
+        def row(issue: Issue) -> dict[str, object]:
+            name = title(issue.entry_id, f"#{issue.entry_id}")
+            return {"entry_id": issue.entry_id, "title": name, "problem": issue.problem}
+
+        return TemplateResponse(
+            request,
+            "admin/content/track/unlock_graph.html",
+            {
+                **self.admin_site.each_context(request),
+                "title": "Unlock graph",
+                "report": report,
+                "layout": layout(report),
+                "node_w": NODE_W,
+                "node_h": NODE_H,
+                "problems": [row(i) for i in report.issues if i.blocking],
+                "warnings": [row(i) for i in report.issues if not i.blocking],
+                "cycles": [[title(e, f"#{e}") for e in group] for group in report.cycles],
+                "stats": {
+                    "events": len(graph.events),
+                    "others": len(graph.others),
+                    "total": total,
+                    "reachable": len(report.reachable),
+                },
+            },
+        )
 
 
 @admin.register(Phase)

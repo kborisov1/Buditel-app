@@ -43,3 +43,40 @@ export function assignLabelRows(
     return row;
   });
 }
+
+const GRID_STEPS = [1, 5, 10, 20, 50];
+const MIN_GRID_GAP_PX = 60;
+
+/** Adaptive grid: the smallest step (years) whose lines stay at least ~60px apart. */
+export function pickGridStep(pxPerYear: number): number {
+  return GRID_STEPS.find((step) => step * pxPerYear >= MIN_GRID_GAP_PX) ?? GRID_STEPS.at(-1)!;
+}
+
+/** Multiples of `step` inside [from, to]. */
+export function gridTicks(from: number, to: number, step: number): number[] {
+  const ticks: number[] = [];
+  for (let year = Math.ceil(from / step) * step; year <= to; year += step) ticks.push(year);
+  return ticks;
+}
+
+export const MAX_ZOOM = 40;
+
+/** The zoom transform (in base-range pixels) that shows the year span [from, to]. */
+export function viewTransform(
+  full: [number, number],
+  width: number,
+  from: number,
+  to: number,
+): { k: number; x: number } {
+  const fullSpan = full[1] - full[0];
+  const span = Math.min(fullSpan, Math.max(fullSpan / MAX_ZOOM, to - from));
+  const start = Math.min(full[1] - span, Math.max(full[0], from));
+  const k = fullSpan / span;
+  return { k, x: -((start - full[0]) / fullSpan) * width * k };
+}
+
+/** Visible span of the current transform as fractions (0..1) of the full period. */
+export function visibleFractions(k: number, x: number, width: number): [number, number] {
+  const start = -x / k / width;
+  return [start, start + 1 / k];
+}

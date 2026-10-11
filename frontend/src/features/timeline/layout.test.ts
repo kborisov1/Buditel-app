@@ -1,5 +1,14 @@
 import { expect, test } from "vitest";
-import { assignLabelRows, assignLanes, toYear, visibleImportance } from "./layout";
+import {
+  assignLabelRows,
+  assignLanes,
+  gridTicks,
+  pickGridStep,
+  toYear,
+  viewTransform,
+  visibleFractions,
+  visibleImportance,
+} from "./layout";
 
 test("toYear places a date inside its year", () => {
   expect(toYear("1762-01-01")).toBe(1762);
@@ -33,4 +42,22 @@ test("labels that collide move down a row, then are dropped", () => {
     3,
   );
   expect(rows).toEqual([0, 1, 2, -1]);
+});
+
+test("grid step widens when zoomed out and narrows when zoomed in", () => {
+  expect(pickGridStep(10)).toBe(10);
+  expect(pickGridStep(14)).toBe(5);
+  expect(pickGridStep(70)).toBe(1);
+  expect(pickGridStep(0.5)).toBe(50);
+  expect(gridTicks(1762, 1800, 10)).toEqual([1770, 1780, 1790, 1800]);
+});
+
+test("viewTransform and visibleFractions round-trip and clamp to the period", () => {
+  const { k, x } = viewTransform([1750, 1890], 1000, 1800, 1840);
+  expect(k).toBeCloseTo(140 / 40);
+  const [a, b] = visibleFractions(k, x, 1000);
+  expect(1750 + a * 140).toBeCloseTo(1800);
+  expect(1750 + b * 140).toBeCloseTo(1840);
+  const edge = viewTransform([1750, 1890], 1000, 1880, 1920);
+  expect(visibleFractions(edge.k, edge.x, 1000)[1]).toBeCloseTo(1);
 });

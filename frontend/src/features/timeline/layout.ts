@@ -80,3 +80,7 @@ export function visibleFractions(k: number, x: number, width: number): [number, 
   const start = -x / k / width;
   return [start, start + 1 / k];
 }
+
+/** One stable color per phase, so a phase looks the same on the timeline and the scrubber. */
+export const PHASE_COLORS = ["#a0522d", "#6b705c", "#7a4a6d", "#9b2c2c", "#2f5d62"];
+export const phaseColor = (index: number): string => PHASE_COLORS[index % PHASE_COLORS.length];

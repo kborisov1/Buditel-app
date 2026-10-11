@@ -244,7 +244,7 @@ One `ActivityLog` table, written through a single `log_event(category, type, use
 
 ## 11. Search
 
-Title search (scope 7) uses a Postgres `pg_trgm` index with `ILIKE` and similarity ranking on `Entry.title`, returning locked entries as title only. Full-text search through bodies is later (scope 11). Postgres ships no Bulgarian dictionary, so when that arrives the options are the `simple` configuration with trigram, or an external engine such as Meilisearch.
+Title search (scope 7) uses a Postgres `pg_trgm` index with `ILIKE` and similarity ranking on `Entry.title`, returning locked entries as title only. `GET /api/search?q=` (`content/search.py`) needs at least 2 characters, matches titles containing the query or with a trigram word similarity of at least 0.5 (a typo or two), and returns up to 20 published entries: titles starting with the query first, then containing it, then by similarity. The database locale (`en_US.utf8`) treats Cyrillic as letters, which `pg_trgm` needs. Full-text search through bodies is later (scope 11). Postgres ships no Bulgarian dictionary, so when that arrives the options are the `simple` configuration with trigram, or an external engine such as Meilisearch.
 
 ---
 

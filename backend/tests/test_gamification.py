@@ -4,6 +4,7 @@ import pytest
 from django.contrib.auth.models import User
 from django.test import Client
 
+from apps.accounts.tools import reset_progress
 from apps.content.models import Entry, Track, TrackEntry
 from apps.core.app_settings import get_setting
 from apps.core.models import AppSetting
@@ -197,15 +198,47 @@ def test_first_request_of_day_records_login(
 ) -> None:
     client.get("/api/auth/me")
     client.get("/api/auth/me")
-    assert _kinds(user) == [("daily_login", 5)]
+    # The first active day counts for the streak but gives no login XP (scope 6.1).
+    assert _kinds(user) == []
     user.profile.refresh_from_db()
     assert (user.profile.current_streak, user.profile.last_active_local_date) == (1, NOW.date())
 
     clock[0] = NOW + timedelta(days=1)
     client.get("/api/auth/me")
+    client.get("/api/auth/me")
     user.profile.refresh_from_db()
     assert user.profile.current_streak == 2
-    assert _kinds(user) == [("daily_login", 5), ("daily_login", 5)]
+    assert _kinds(user) == [("daily_login", 5)]
+
+
+def test_new_account_starts_at_zero_xp(db: None, clock: list[datetime]) -> None:
+    User.objects.create_user("fresh", email="fresh@example.com", password="pw")
+    client = Client()
+    client.get("/api/auth/csrf")
+    login = client.post(
+        "/api/auth/login",
+        {"email": "fresh@example.com", "password": "pw"},
+        content_type="application/json",
+    )
+    assert login.status_code == 200
+    data = client.get("/api/dashboard").json()
+    assert data["level"]["total_xp"] == 0
+    assert data["goal"]["earned_today"] == 0
+    assert not XpEvent.objects.exists()
+
+
+def test_first_day_after_reset_gives_no_login_xp(
+    client: Client, user: User, clock: list[datetime]
+) -> None:
+    user.profile.last_active_local_date = NOW.date() - timedelta(days=1)
+    user.profile.save()
+    client.get("/api/auth/me")
+    assert _kinds(user) == [("daily_login", 5)]
+
+    reset_progress(user, by=User.objects.create_superuser("owner", "o@example.com", "pw"))
+    clock[0] = NOW + timedelta(days=1)
+    client.get("/api/auth/me")
+    assert _kinds(user) == []
 
 
 def test_missed_day_uses_freeze(client: Client, user: User, clock: list[datetime]) -> None:
@@ -255,13 +288,13 @@ def test_dashboard(client: Client, user: User) -> None:
         )
     data = client.get("/api/dashboard").json()
     assert data == {
-        "goal": {"target": 40, "earned_today": 5, "reached": False},
+        "goal": {"target": 40, "earned_today": 0, "reached": False},
         "streak": {"current": 1, "longest": 1, "freezes_held": 0, "max_freezes": 2},
         "level": {
             "level": 1,
             "title": "peasant",
-            "total_xp": 5,
-            "xp_into_level": 5,
+            "total_xp": 0,
+            "xp_into_level": 0,
             "xp_for_next_level": 100,
         },
         "reviews_due": 2,

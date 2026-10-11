@@ -56,7 +56,8 @@ def advance(streak: Streak, today: date) -> Streak:
 def record_daily_activity(user: User) -> bool:
     """Update the streak and award login XP on the user's first activity of the local day.
 
-    Returns whether this was the first activity today.
+    The very first active day earns no login XP (scope 6.1). Returns whether this was the
+    first activity today.
     """
     today = clock.now(user).date()
     with transaction.atomic():
@@ -91,5 +92,8 @@ def record_daily_activity(user: User) -> bool:
             freezes_before=before.freezes,
             freezes_after=after.freezes,
         )
-        xp.award(user, XpEvent.Kind.DAILY_LOGIN, get_setting("xp_daily_login"), f"login:{today}")
+        if before.last_active is not None:
+            xp.award(
+                user, XpEvent.Kind.DAILY_LOGIN, get_setting("xp_daily_login"), f"login:{today}"
+            )
     return True

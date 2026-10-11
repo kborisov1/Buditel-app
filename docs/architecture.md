@@ -171,7 +171,7 @@ The `Profile` completed-entries counter increments on each first pass. When it r
 - XP values come from `AppSetting`. Every award writes an `XpEvent`.
 - Level thresholds: level 1 to 2 needs 100 XP, each next level needs 25 more. The level is derived from total XP by a closed-form formula (arithmetic series), not a loop over a table. Titles are a lookup by level range.
 - The daily goal is the sum of that day's `XpEvent` amounts for the user's local date, against 40. Reaching it writes a one-time 10 XP bonus event for that day. After the goal is reached, awards are multiplied by 0.8 and rounded.
-- Login XP (5) is awarded on the first authenticated request of the local day, together with the streak update (6.6), and counts toward the goal.
+- Login XP (5) is awarded on the first authenticated request of the local day, together with the streak update (6.6), and counts toward the goal. It is skipped when `last_active_local_date` is empty (the user's first active day, also after a reset), so a new account starts at 0 XP (scope 6.1).
 - Goal, overflow rate and level curve come from `AppSetting` (`daily_goal_xp`, `goal_overflow_percentage`, `level_base_xp`, `level_step_xp`). Awards for one user are serialized on the profile row so the bonus is written once.
 - The API returns titles as stable English keys (`peasant` to `apostle`); the Bulgarian names live in the frontend i18n file.
 - `GET /api/dashboard` returns goal, streak, level and the count of due reviews. Continue-reading comes from the entries list.

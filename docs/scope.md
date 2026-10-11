@@ -141,8 +141,9 @@ The author can define gate events in the admin panel: an event that unlocks only
   - Quiz retake: **5 XP**.
   - Correct answer in review or practice: **2 XP**.
   - Correct answer in an older-event check: **3 XP**.
-  - Daily login: **5 XP**.
+  - Daily login: **5 XP**, from the second active day on. The first active day (a new account, or after an admin reset) gives none.
   - Daily goal completion bonus: **10 XP**.
+- A new account starts at **0 XP**, level 1. Nothing is awarded for creating an account or for simply logging in the first time; the first XP comes from learning activity.
 - After the daily goal is reached, users can keep earning XP at a **20% reduced rate**.
 - XP only for v1. A second currency (coins or similar) is **[LATER]**.
 

@@ -68,7 +68,7 @@ def test_profile_basics(client: Client) -> None:
     data = client.get("/api/profile").json()
     assert data["email"] == "learner@example.com"
     assert data["level"]["title"] == "peasant"
-    assert data["level"]["total_xp"] == 5  # today's login
+    assert data["level"]["total_xp"] == 0  # a new account starts at 0 XP (scope 6.1)
     assert data["streak"]["current"] == 1
     assert data["history"] == []
 

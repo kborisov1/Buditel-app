@@ -80,9 +80,18 @@ def test_login_logout_and_daily_activity(user: User) -> None:
     assert _login(client) == 200
     client.get("/api/auth/me")
     client.post("/api/auth/logout")
-    assert _types() == ["login_failed", "login", "daily_activity", "xp_award", "logout"]
+    # A new account's first active day gives no login XP (scope 6.1).
+    assert _types() == ["login_failed", "login", "daily_activity", "logout"]
     failed = ActivityLog.objects.get(event_type="login_failed")
     assert failed.user is None and failed.details == {"email": "learner@example.com"}
+
+
+def test_returning_login_xp_is_logged(user: User) -> None:
+    user.profile.last_active_local_date = date(2026, 3, 9)
+    user.profile.save()
+    client = Client()
+    _login(client)
+    client.get("/api/auth/me")
     award = ActivityLog.objects.get(event_type="xp_award")
     assert award.details == {"kind": "daily_login", "amount": 5, "reference": "login:2026-03-10"}
 

@@ -140,6 +140,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/timeline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Timeline */
+        get: operations["apps_content_api_timeline"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/entries/{slug}/quiz": {
         parameters: {
             query?: never;
@@ -544,6 +561,97 @@ export interface components {
         ProgressOut: {
             /** State */
             state: string;
+        };
+        /**
+         * LockedTimelineEventOut
+         * @description Title and date, plus importance and certainty that only steer zoom and date display.
+         */
+        LockedTimelineEventOut: {
+            /**
+             * Locked
+             * @default true
+             * @constant
+             */
+            locked: true;
+            /** Id */
+            id: number;
+            /** Slug */
+            slug: string;
+            /** Title */
+            title: string;
+            /**
+             * Event Date
+             * Format: date
+             */
+            event_date: string;
+            /** Date Certainty */
+            date_certainty: string;
+            /** Importance */
+            importance: string;
+        };
+        /** PhaseOut */
+        PhaseOut: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /**
+             * Start Date
+             * Format: date
+             */
+            start_date: string;
+            /**
+             * End Date
+             * Format: date
+             */
+            end_date: string;
+        };
+        /** TimelineEventOut */
+        TimelineEventOut: {
+            /**
+             * Locked
+             * @default false
+             * @constant
+             */
+            locked: false;
+            /** Id */
+            id: number;
+            /** Slug */
+            slug: string;
+            /** Title */
+            title: string;
+            /**
+             * Event Date
+             * Format: date
+             */
+            event_date: string;
+            /** Date Certainty */
+            date_certainty: string;
+            /** Importance */
+            importance: string;
+            /** Summary */
+            summary: string;
+            /** Region */
+            region: string;
+            /** Progress */
+            progress: string | null;
+        };
+        /** TimelineOut */
+        TimelineOut: {
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            /** Phases */
+            phases: components["schemas"]["PhaseOut"][];
+            /** Events */
+            events: (components["schemas"]["TimelineEventOut"] | components["schemas"]["LockedTimelineEventOut"])[];
         };
         /** QuestionOut */
         QuestionOut: {
@@ -1070,6 +1178,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ProgressOut"];
+                };
+            };
+        };
+    };
+    apps_content_api_timeline: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TimelineOut"];
                 };
             };
         };

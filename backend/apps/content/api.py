@@ -15,6 +15,7 @@ from apps.progress.unlock import unlocked_entry_ids
 from .library import body_link_slugs, filter_entries, published_entries
 from .models import Entry, Phase
 from .rules import PERIOD_END, PERIOD_START
+from .search import search_titles
 from .timeline import phases, timeline_events
 
 router = Router(tags=["entries"])
@@ -197,6 +198,20 @@ def finished_reading(request: HttpRequest, slug: str) -> ProgressOut:
     except EntryLocked:
         raise HttpError(403, "Entry is locked") from None
     return ProgressOut(state=progress.state)
+
+
+# Title search (scope 7, architecture 11)
+
+
+@router.get("/search", response=list[EntrySummaryOut | LockedEntryOut], tags=["search"])
+def search(request: HttpRequest, q: str = "") -> list[EntrySummaryOut | LockedEntryOut]:
+    """Best matches first. Locked entries come back as title only (scope 3.4)."""
+    user = _user(request)
+    unlocked = unlocked_entry_ids(user)
+    states = progress_states(user)
+    return [
+        _summary(e, states.get(e.pk)) if e.pk in unlocked else _locked(e) for e in search_titles(q)
+    ]
 
 
 # Timeline (scope 7.2)

@@ -14,14 +14,14 @@ export default function TimelinePage() {
   const current = timeline.data?.events.find((e) => e.slug === selected);
 
   return (
-    <section>
-      <h1 className="mb-4 font-serif text-3xl">{t("timeline.title")}</h1>
+    <section className="flex h-full min-h-0 flex-col">
+      <h1 className="sr-only">{t("timeline.title")}</h1>
       <QueryStatus query={timeline} />
       {timeline.data && (
-        <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
+        <div className="relative min-h-0 flex-1">
           <TimelineChart timeline={timeline.data} selected={selected} onSelect={setSelected} />
           {current && (
-            <aside className="h-fit rounded border border-cappuccino bg-white/40 p-4">
+            <aside className="absolute bottom-16 right-0 top-10 z-10 w-80 max-w-full overflow-y-auto rounded border border-cappuccino bg-parchment p-4 shadow-lg">
               <button className="float-right text-sm underline" onClick={() => setSelected(null)}>
                 {t("timeline.close")}
               </button>

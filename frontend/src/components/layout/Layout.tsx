@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useLogout, useMe } from "../../features/auth/useAuth";
 
 const NAV = [
@@ -16,6 +16,7 @@ export default function Layout() {
   const me = useMe();
   const logout = useLogout();
   const navigate = useNavigate();
+  const fullPage = useLocation().pathname === "/timeline";
   const [query, setQuery] = useState("");
 
   function onSearch(event: FormEvent) {
@@ -25,7 +26,7 @@ export default function Layout() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className={fullPage ? "flex h-screen flex-col" : "min-h-screen"}>
       <header className="border-b border-cappuccino bg-parchment">
         <div className="mx-auto flex max-w-6xl items-center gap-6 px-6 py-3">
           <NavLink to="/" className="font-serif text-2xl font-semibold">
@@ -64,7 +65,7 @@ export default function Layout() {
           </button>
         </div>
       </header>
-      <main className="mx-auto max-w-6xl px-6 py-8">
+      <main className={fullPage ? "min-h-0 flex-1 px-4 py-3" : "mx-auto max-w-6xl px-6 py-8"}>
         <Outlet />
       </main>
     </div>

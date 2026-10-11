@@ -135,6 +135,7 @@ All rules run on the server. The client only displays results.
 ### 6.1 Unlocking (scope 3)
 
 - An **event** is unlocked when, for every track it belongs to, the previous event in that track is `read`, and all its gate requirements are `read`. For multi-track events, all tracks must allow it.
+- An event in the **opening** track follows the opening track's order only. Every other track skips it when working out "the previous event", because those tracks open only after all opening events are read. Otherwise an opening event that also sits in another track would wait for the opening track to finish, which waits for that event: a deadlock.
 - The first event of every non-opening track additionally requires all events of the **opening** track (Awakening) to be `read`.
 - A **non-event entry** is unlocked once any linked event is `read`.
 - The **Finale** track's first event unlocks when, in every other track, the user has read at least `ceil(pct * event_count)` events, where `pct` comes from `AppSetting` (default 80%).

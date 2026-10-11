@@ -5,6 +5,7 @@ from django.core.management import call_command
 
 from apps.content.models import Entry, GateRequirement, Phase, TrackEntry
 from apps.content.rules import MIN_QUESTIONS
+from apps.progress.graph_check import analyse
 from apps.progress.unlock import load_graph, unlocked_ids
 from apps.quizzes.models import Question
 from apps.quizzes.payloads import question_errors
@@ -95,3 +96,14 @@ def test_sample_unlock_opens_other_tracks_after_awakening() -> None:
         _id("kyuchuk-kaynardzhiyski-mir"),
     }
     assert unlocked_ids(graph, awakening) == awakening | first_events
+
+
+@pytest.mark.django_db
+def test_sample_unlock_graph_has_no_blocking_problems() -> None:
+    # Scope 3.4: every published entry must be reachable by a learner.
+    call_command("loaddata", "sample", verbosity=0)
+    graph = load_graph()
+
+    report = analyse(graph, {})
+    assert [i for i in report.issues if i.blocking] == []
+    assert report.reachable == graph.events | graph.others

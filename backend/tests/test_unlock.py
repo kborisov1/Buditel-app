@@ -79,6 +79,29 @@ def test_multi_track_event_needs_every_track() -> None:
     assert 30 in unlocked_ids(g, {10, 20, 21})
 
 
+def test_opening_event_in_another_track_follows_opening_order() -> None:
+    # Architecture 6.1: other tracks skip opening events, which they wait for anyway.
+    # Taking both orders would deadlock: 2 waits for the opening track, which waits for 2.
+    g = graph(TrackOrder(OPENING, (1, 2, 3)), TrackOrder(REGULAR, (2, 10, 11)))
+    assert unlocked_ids(g, {1}) == {1, 2}
+    assert unlocked_ids(g, {1, 2}) == {1, 2, 3}
+    assert unlocked_ids(g, {1, 2, 3}) == {1, 2, 3, 10}
+    assert unlocked_ids(g, {1, 2, 3, 10}) == {1, 2, 3, 10, 11}
+
+
+def test_opening_event_dated_inside_another_track_does_not_block_it() -> None:
+    g = graph(TrackOrder(OPENING, (1, 2)), TrackOrder(REGULAR, (10, 2, 11)))
+    assert unlocked_ids(g, {1}) == {1, 2}
+    assert unlocked_ids(g, {1, 2}) == {1, 2, 10}
+    assert unlocked_ids(g, {1, 2, 10}) == {1, 2, 10, 11}
+
+
+def test_opening_event_in_finale_follows_opening_order() -> None:
+    g = graph(TrackOrder(OPENING, (1, 2)), TrackOrder(FINALE, (2, 90)))
+    assert unlocked_ids(g, {1}) == {1, 2}
+    assert unlocked_ids(g, {1, 2}) == {1, 2, 90}
+
+
 def test_gate_needs_all_required_events() -> None:
     g = graph(
         TrackOrder(REGULAR, (10, 11)),

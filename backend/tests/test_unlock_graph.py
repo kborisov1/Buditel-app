@@ -43,6 +43,12 @@ def test_cycle_across_tracks() -> None:
     assert problems(g) == {10: ["Part of a dependency cycle."], 20: ["Part of a dependency cycle."]}
 
 
+def test_opening_event_in_another_track_is_not_a_cycle() -> None:
+    g = graph(TrackOrder(OPENING, (1, 2)), TrackOrder(REGULAR, (2, 10)), others=frozenset())
+    assert reachable(g) == {1, 2, 10}
+    assert problems(g) == {}
+
+
 def test_blocked_by_unreachable_gate_and_track_order() -> None:
     g = graph(
         TrackOrder(REGULAR, (10, 20)),

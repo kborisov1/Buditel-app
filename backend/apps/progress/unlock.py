@@ -41,6 +41,15 @@ class UnlockGraph:
     links: Mapping[int, frozenset[int]] = field(default_factory=dict)
     finale_percentage: int = 80
 
+    def unlock_order(self, track: TrackOrder) -> tuple[int, ...]:
+        """Events in the order `track` unlocks them. Other tracks skip opening-track events:
+        those follow the opening track alone, since every other track waits for it anyway
+        (architecture 6.1). Without this, an opening event in another track never unlocks."""
+        if track.kind == Track.Kind.OPENING:
+            return track.events
+        opening = {e for t in self.tracks if t.kind == Track.Kind.OPENING for e in t.events}
+        return tuple(e for e in track.events if e not in opening)
+
 
 def unlocked_ids(graph: UnlockGraph, read: set[int]) -> set[int]:
     """IDs of entries the user may open, given the IDs of entries they have read."""
@@ -53,9 +62,10 @@ def unlocked_ids(graph: UnlockGraph, read: set[int]) -> set[int]:
 
     blocked: set[int] = set()
     for track in graph.tracks:
-        for i, event in enumerate(track.events):
+        order = graph.unlock_order(track)
+        for i, event in enumerate(order):
             if i > 0:
-                allowed = track.events[i - 1] in read
+                allowed = order[i - 1] in read
             elif track.kind == Track.Kind.OPENING:
                 allowed = True
             elif track.kind == Track.Kind.FINALE:

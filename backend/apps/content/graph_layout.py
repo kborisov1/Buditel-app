@@ -95,7 +95,8 @@ def layout(report: GraphReport) -> Layout:
                 status,
             )
 
-    track_pairs = {p for t in graph.tracks for p in zip(t.events, t.events[1:], strict=False)}
+    orders = [graph.unlock_order(t) for t in graph.tracks]
+    track_pairs = {p for o in orders for p in zip(o, o[1:], strict=False)}
     gate_pairs = {(r, e) for e, required in graph.gates.items() for r in required}
     edges = []
     for a, b in sorted(report.edges):

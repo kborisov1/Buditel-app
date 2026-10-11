@@ -18,7 +18,9 @@
     "practice": "Упражнения",
     "profile": "Профил",
     "search": "Търсене по заглавие",
-    "searchPlaceholder": "Търсене…"
+    "searchPlaceholder": "Търсене…",
+    "searchAll": "Всички резултати в библиотеката",
+    "searchNone": "Няма съвпадения."
   },
   "common": {
     "loading": "Зареждане…",
@@ -94,7 +96,12 @@
     "all": "Всички",
     "search": "Търсене по име",
     "results_one": "{{count}} запис",
-    "results_other": "{{count}} записа"
+    "results_other": "{{count}} записа",
+    "track": "Пътека",
+    "phase": "Период",
+    "region": "Регион",
+    "anyFilter": "Всички",
+    "reset": "Изчисти филтрите"
   },
   "entry": {
     "back": "Към библиотеката",

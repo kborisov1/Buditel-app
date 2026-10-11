@@ -1,7 +1,7 @@
-import { useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
-import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { useLogout, useMe } from "../../features/auth/useAuth";
+import SearchBox from "./SearchBox";
 
 const NAV = [
   { to: "/", key: "dashboard", end: true },
@@ -15,15 +15,7 @@ export default function Layout() {
   const { t } = useTranslation();
   const me = useMe();
   const logout = useLogout();
-  const navigate = useNavigate();
   const fullPage = useLocation().pathname === "/timeline";
-  const [query, setQuery] = useState("");
-
-  function onSearch(event: FormEvent) {
-    event.preventDefault();
-    const q = query.trim();
-    navigate(q ? `/library?q=${encodeURIComponent(q)}` : "/library");
-  }
 
   return (
     <div className={fullPage ? "flex h-screen flex-col" : "min-h-screen"}>
@@ -46,16 +38,7 @@ export default function Layout() {
               </NavLink>
             ))}
           </nav>
-          <form onSubmit={onSearch} role="search" className="ml-auto">
-            <input
-              type="search"
-              aria-label={t("nav.search")}
-              placeholder={t("nav.searchPlaceholder")}
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="rounded border border-cappuccino bg-white/60 px-3 py-1"
-            />
-          </form>
+          <SearchBox />
           <span className="text-sm">{me.data?.email}</span>
           <button
             onClick={() => logout.mutate()}

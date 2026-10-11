@@ -237,6 +237,18 @@ def test_pass_marks_read_awards_xp_and_unlocks(
     assert client.get("/api/entries/second").json()["locked"] is False
 
 
+def test_pass_unlocks_next_opening_event_that_is_also_in_another_track(
+    client: Client, entries: tuple[Entry, Entry]
+) -> None:
+    # A fresh learner passes the first quiz; the next opening event unlocks even when it
+    # also opens another track (architecture 6.1).
+    regular = Track.objects.create(name="Church", kind=Track.Kind.REGULAR, position=10)
+    TrackEntry.objects.create(track=regular, entry=entries[1])
+    assert client.get("/api/entries/second").json()["locked"] is True
+    assert _submit(client, _start(client)).json()["passed"] is True
+    assert client.get("/api/entries/second").json()["locked"] is False
+
+
 def test_fail_returns_score_only(client: Client, user: User, entries: tuple[Entry, Entry]) -> None:
     response = _submit(client, _start(client), wrong=2)
     assert response.json() == {"passed": False, "score": 3, "total": 5}

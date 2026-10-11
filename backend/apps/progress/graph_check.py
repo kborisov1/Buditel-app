@@ -28,9 +28,10 @@ def dependency_edges(graph: UnlockGraph) -> set[tuple[int, int]]:
     edges: set[tuple[int, int]] = set()
     opening_last = [t.events[-1] for t in graph.tracks if t.kind == Track.Kind.OPENING and t.events]
     for track in graph.tracks:
-        edges |= set(zip(track.events, track.events[1:], strict=False))
-        if track.kind != Track.Kind.OPENING and track.events:
-            edges |= {(last, track.events[0]) for last in opening_last}
+        order = graph.unlock_order(track)
+        edges |= set(zip(order, order[1:], strict=False))
+        if track.kind != Track.Kind.OPENING and order:
+            edges |= {(last, order[0]) for last in opening_last}
     for event, required in graph.gates.items():
         edges |= {(r, event) for r in required}
     return {(a, b) for a, b in edges if a != b}
@@ -115,7 +116,9 @@ def analyse(graph: UnlockGraph, titles: dict[int, str]) -> GraphReport:
             problem = "Part of a dependency cycle."
         elif blockers := sorted(p for p in preds[e] if p not in report.reachable):
             problem = "Waits for unreachable: " + ", ".join(name(p) for p in blockers) + "."
-        elif any(t.kind == Track.Kind.FINALE and t.events[:1] == (e,) for t in graph.tracks):
+        elif any(
+            t.kind == Track.Kind.FINALE and graph.unlock_order(t)[:1] == (e,) for t in graph.tracks
+        ):
             problem = "The finale threshold can never be met."
         else:
             problem = "Never unlocks."

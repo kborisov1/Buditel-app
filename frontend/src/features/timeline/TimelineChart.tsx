@@ -7,6 +7,7 @@ import {
   assignLanes,
   gridTicks,
   MAX_ZOOM,
+  phaseColor,
   pickGridStep,
   toYear,
   viewTransform,
@@ -15,12 +16,11 @@ import {
 } from "./layout";
 import TimelineScrubber from "./TimelineScrubber";
 
-const LANE_H = 24;
+const LANE_H = 46;
 const BANDS_TOP = 12;
 const CHAR_W = 7;
 const ROW_H = 20;
 const PAD_YEARS = 8; // room so labels at the period edges are not clipped
-const BAND_COLORS = ["#c8a57a", "#a9855a", "#8a6a4a", "#d9bf98", "#6f5340"];
 
 interface Props {
   timeline: Timeline;
@@ -97,7 +97,7 @@ export default function TimelineChart({ timeline, selected, onSelect }: Props) {
   const bands = useMemo(
     () =>
       assignLanes(
-        timeline.phases.map((p) => ({ ...p, start: toYear(p.start_date), end: toYear(p.end_date) })),
+        timeline.phases.map((p, index) => ({ ...p, index, start: toYear(p.start_date), end: toYear(p.end_date) })),
       ),
     [timeline.phases],
   );
@@ -130,7 +130,7 @@ export default function TimelineChart({ timeline, selected, onSelect }: Props) {
         </button>
         <span className="self-center text-sm">{t("timeline.zoomHint")}</span>
       </div>
-      <div ref={areaRef} className="min-h-0 flex-1 overflow-hidden rounded border border-cappuccino bg-white/30">
+      <div ref={areaRef} className="min-h-0 max-h-[640px] flex-1 overflow-hidden rounded border border-cappuccino bg-white/30">
         <svg
           ref={svgRef}
           width={w}
@@ -149,17 +149,29 @@ export default function TimelineChart({ timeline, selected, onSelect }: Props) {
                   </text>
                 </g>
               ))}
-              {bands.map((b, i) => {
+              {bands.map((b) => {
                 const left = Math.max(x(b.start), 0);
                 const right = Math.min(x(b.end), w);
                 if (right <= left) return null;
                 const y = BANDS_TOP + b.lane * LANE_H;
+                const color = phaseColor(b.index);
+                const clip = `phase-clip-${b.id}`;
                 return (
                   <g key={b.id}>
-                    <rect x={left} y={y} width={right - left} height={LANE_H - 4} rx={3} fill={BAND_COLORS[i % BAND_COLORS.length]} opacity={0.7} />
-                    <text x={left + 6} y={y + 14} fontSize={12} fill="#2b1d14">
-                      {b.name}
-                    </text>
+                    {/* A faint wash down the chart shows where the phase lies under the events. */}
+                    <rect x={left} y={y} width={right - left} height={h - y} fill={color} opacity={0.06} />
+                    <clipPath id={clip}>
+                      <rect x={left} y={y} width={right - left} height={LANE_H - 6} />
+                    </clipPath>
+                    <rect x={left} y={y} width={right - left} height={LANE_H - 6} rx={6} fill={color} />
+                    <g clipPath={`url(#${clip})`} fill="#f4ead5">
+                      <text x={left + 12} y={y + 18} fontSize={14} fontWeight={700} fontFamily="'Source Serif 4', serif">
+                        {b.name}
+                      </text>
+                      <text x={left + 12} y={y + 33} fontSize={11} opacity={0.85}>
+                        {`${b.start_date.slice(0, 4)}–${b.end_date.slice(0, 4)}`}
+                      </text>
+                    </g>
                   </g>
                 );
               })}
@@ -219,6 +231,7 @@ export default function TimelineChart({ timeline, selected, onSelect }: Props) {
       <TimelineScrubber
         full={full}
         events={timeline.events}
+        phases={timeline.phases}
         visible={[from, to]}
         onChange={showSpan}
       />

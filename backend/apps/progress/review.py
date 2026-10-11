@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from django.db import transaction
 from django.db.models import QuerySet
 
+from apps.activity.log import log_event
 from apps.core import clock
 from apps.core.app_settings import get_setting
 from apps.gamification import xp
@@ -101,6 +102,7 @@ def answer_review(user: User, question_id: int, answer: Any) -> ReviewResult:
 
         if not is_correct(question.type, question.payload, answer):
             state = record_miss(user, question_id)
+            log_event("user", "review_answer", user, question=question_id, correct=False)
             return ReviewResult(question, False, 0, state.due_date)
 
         state.box = min(state.box + 1, len(INTERVAL_DAYS) - 1)
@@ -110,4 +112,5 @@ def answer_review(user: User, question_id: int, answer: Any) -> ReviewResult:
         event = xp.award(
             user, XpEvent.Kind.REVIEW, get_setting("xp_review_correct"), f"question:{question_id}"
         )
+        log_event("user", "review_answer", user, question=question_id, correct=True, box=state.box)
     return ReviewResult(question, True, event.amount if event else 0, state.due_date)

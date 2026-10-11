@@ -9,6 +9,7 @@ from django.db import transaction
 from django.db.models import F
 
 from apps.accounts.models import Profile
+from apps.activity.log import log_event
 from apps.content.models import Entry
 from apps.core import clock
 from apps.core.app_settings import get_setting
@@ -72,6 +73,7 @@ def start_quiz(user: User, entry: Entry, rng: random.Random | None = None) -> Qu
             QuizAttemptQuestion(attempt=attempt, question_id=q, position=i)
             for i, q in enumerate(chosen, start=1)
         )
+    log_event("user", "quiz_start", user, attempt=attempt.pk, entry=entry.slug, questions=chosen)
     return attempt
 
 
@@ -113,6 +115,17 @@ def submit_quiz(user: User, attempt_id: int, answers: dict[int, Any]) -> QuizRes
         if attempt.passed:
             attempt.xp_awarded = _record_pass(user, attempt)
         attempt.save()
+        log_event(
+            "user",
+            "quiz_submit",
+            user,
+            attempt=attempt.pk,
+            entry=attempt.entry.slug,
+            score=attempt.score,
+            total=len(items),
+            passed=attempt.passed,
+            xp=attempt.xp_awarded,
+        )
     return QuizResult(attempt, items)
 
 

@@ -6,6 +6,8 @@ from ninja import Router, Schema, Status
 from ninja.errors import HttpError
 from ninja.security import django_auth
 
+from apps.activity.log import log_event
+
 from .validation import is_valid_time_zone
 
 router = Router(tags=["auth"])
@@ -55,9 +57,11 @@ def login_view(request: HttpRequest, payload: LoginIn) -> UserOut:
     if match:
         user = authenticate(request, username=match.username, password=payload.password)
     if user is None or not user.is_active:
+        log_event("user", "login_failed", email=payload.email.strip())
         raise HttpError(401, "Invalid credentials")
     first_login = user.last_login is None
     login(request, user)
+    log_event("user", "login", user)
     if first_login and payload.time_zone and is_valid_time_zone(payload.time_zone):
         user.profile.time_zone = payload.time_zone  # type: ignore[attr-defined]
         user.profile.save(update_fields=["time_zone"])  # type: ignore[attr-defined]
@@ -66,6 +70,7 @@ def login_view(request: HttpRequest, payload: LoginIn) -> UserOut:
 
 @router.post("/logout", auth=django_auth, response={204: None})
 def logout_view(request: HttpRequest) -> Status[None]:
+    log_event("user", "logout", request.user)
     logout(request)
     return Status(204, None)
 

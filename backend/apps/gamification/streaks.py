@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.db import transaction
 
 from apps.accounts.models import Profile
+from apps.activity.log import log_event
 from apps.core import clock
 from apps.core.app_settings import get_setting
 
@@ -80,6 +81,15 @@ def record_daily_activity(user: User) -> bool:
                 "freezes_held",
                 "last_active_local_date",
             ]
+        )
+        log_event(
+            "user",
+            "daily_activity",
+            user,
+            streak_before=before.current,
+            streak_after=after.current,
+            freezes_before=before.freezes,
+            freezes_after=after.freezes,
         )
         xp.award(user, XpEvent.Kind.DAILY_LOGIN, get_setting("xp_daily_login"), f"login:{today}")
     return True

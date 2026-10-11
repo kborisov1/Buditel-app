@@ -106,7 +106,7 @@ def test_quiz_flow_is_logged(client: Client, user: User) -> None:
         importance=Entry.Importance.MAJOR,
         status=Entry.Status.PUBLISHED,
     )
-    TrackEntry.objects.create(track=Track.objects.get(kind="opening"), entry=entry, position=1)
+    TrackEntry.objects.create(track=Track.objects.get(kind="opening"), entry=entry)
     for i in range(6):
         Question.objects.create(
             entry=entry,

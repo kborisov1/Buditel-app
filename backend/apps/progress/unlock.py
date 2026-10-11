@@ -12,7 +12,14 @@ from dataclasses import dataclass, field
 
 from django.contrib.auth.models import User
 
-from apps.content.models import Entry, EntryRelation, GateRequirement, Track, TrackEntry
+from apps.content.models import (
+    Entry,
+    EntryRelation,
+    GateRequirement,
+    Track,
+    TrackEntry,
+    chronological,
+)
 from apps.core.app_settings import get_setting
 
 from .models import EntryProgress
@@ -85,7 +92,7 @@ def load_graph() -> UnlockGraph:
     kinds: dict[int, str] = {}
     rows = (
         TrackEntry.objects.filter(entry_id__in=events)
-        .order_by("track__position", "position")
+        .order_by("track__position", *chronological("entry__"), "entry_id")
         .values_list("track_id", "track__kind", "entry_id")
     )
     for track_id, kind, entry_id in rows:

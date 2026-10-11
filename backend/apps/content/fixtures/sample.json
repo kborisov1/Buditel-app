@@ -690,27 +690,27 @@
   {
     "model": "content.trackentry",
     "pk": 101,
-    "fields": {"track": 1, "entry": 101, "position": 1}
+    "fields": {"track": 1, "entry": 101}
   },
   {
     "model": "content.trackentry",
     "pk": 102,
-    "fields": {"track": 2, "entry": 102, "position": 1}
+    "fields": {"track": 2, "entry": 102}
   },
   {
     "model": "content.trackentry",
     "pk": 103,
-    "fields": {"track": 3, "entry": 103, "position": 1}
+    "fields": {"track": 3, "entry": 103}
   },
   {
     "model": "content.trackentry",
     "pk": 104,
-    "fields": {"track": 4, "entry": 104, "position": 1}
+    "fields": {"track": 4, "entry": 104}
   },
   {
     "model": "content.trackentry",
     "pk": 105,
-    "fields": {"track": 5, "entry": 105, "position": 1}
+    "fields": {"track": 5, "entry": 105}
   },
   {
     "model": "content.gaterequirement",

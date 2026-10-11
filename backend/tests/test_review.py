@@ -21,11 +21,12 @@ def _event(slug: str, position: int, published: bool = True) -> Entry:
         title=f"Title {slug}",
         summary="x",
         event_date=date(1800, 1, 1),
+        year_order=position,
         importance=Entry.Importance.MAJOR,
         status=Entry.Status.PUBLISHED if published else Entry.Status.DRAFT,
     )
     TrackEntry.objects.create(
-        track=Track.objects.get(kind=Track.Kind.OPENING), entry=entry, position=position
+        track=Track.objects.get(kind=Track.Kind.OPENING), entry=entry
     )
     return entry
 

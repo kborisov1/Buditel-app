@@ -3,6 +3,7 @@ from typing import Any
 from django.contrib.postgres.indexes import GinIndex
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models.functions import ExtractYear
 
 from .rules import entry_field_errors
 
@@ -55,7 +56,8 @@ class Entry(models.Model):
 
     class Meta:
         verbose_name_plural = "entries"
-        ordering = ["event_date", "year_order", "title"]
+        # Within a year the author's year_order wins over the exact date (scope 2.3).
+        ordering = [ExtractYear("event_date"), "year_order", "event_date", "title"]
         indexes = [
             GinIndex(fields=["title"], name="entry_title_trgm", opclasses=["gin_trgm_ops"]),
         ]

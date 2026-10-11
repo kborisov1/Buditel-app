@@ -14,6 +14,8 @@ from apps.progress.unlock import unlocked_entry_ids
 
 from .library import body_link_slugs, filter_entries, published_entries
 from .models import Entry, Phase
+from .rules import PERIOD_END, PERIOD_START
+from .timeline import phases, timeline_events
 
 router = Router(tags=["entries"])
 
@@ -195,3 +197,84 @@ def finished_reading(request: HttpRequest, slug: str) -> ProgressOut:
     except EntryLocked:
         raise HttpError(403, "Entry is locked") from None
     return ProgressOut(state=progress.state)
+
+
+# Timeline (scope 7.2)
+
+
+class LockedTimelineEventOut(Schema):
+    """Title and date, plus importance and certainty that only steer zoom and date display."""
+
+    locked: Literal[True] = True
+    id: int
+    slug: str
+    title: str
+    event_date: date
+    date_certainty: str
+    importance: str
+
+
+class TimelineEventOut(Schema):
+    locked: Literal[False] = False
+    id: int
+    slug: str
+    title: str
+    event_date: date
+    date_certainty: str
+    importance: str
+    summary: str
+    region: str
+    progress: str | None
+
+
+class PhaseOut(Schema):
+    id: int
+    name: str
+    start_date: date
+    end_date: date
+
+
+class TimelineOut(Schema):
+    start: date
+    end: date
+    phases: list[PhaseOut]
+    events: list[TimelineEventOut | LockedTimelineEventOut]
+
+
+@router.get("/timeline", response=TimelineOut, tags=["timeline"])
+def timeline(request: HttpRequest) -> TimelineOut:
+    user = _user(request)
+    unlocked = unlocked_entry_ids(user)
+    states = progress_states(user)
+    events: list[TimelineEventOut | LockedTimelineEventOut] = []
+    for e in timeline_events():
+        if e.event_date is None:  # events always have a date (scope 2.3)
+            continue
+        locked = LockedTimelineEventOut(
+            id=e.pk,
+            slug=e.slug,
+            title=e.title,
+            event_date=e.event_date,
+            date_certainty=e.date_certainty,
+            importance=e.importance,
+        )
+        if e.pk not in unlocked:
+            events.append(locked)
+            continue
+        events.append(
+            TimelineEventOut(
+                **locked.model_dump(exclude={"locked"}),
+                summary=e.summary,
+                region=e.region,
+                progress=states.get(e.pk),
+            )
+        )
+    return TimelineOut(
+        start=PERIOD_START,
+        end=PERIOD_END,
+        phases=[
+            PhaseOut(id=p.pk, name=p.name, start_date=p.start_date, end_date=p.end_date)
+            for p in phases()
+        ],
+        events=events,
+    )

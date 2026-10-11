@@ -143,7 +143,7 @@ All rules run on the server. The client only displays results.
 - Only **published** entries take part. Drafts are never unlocked, and a draft event is skipped in track order, gate requirements, relations and the finale count, so an unpublished event never blocks learners.
 - The engine lives in `progress/unlock.py`: a pure function over an in-memory graph and the user's set of read entry IDs, plus a loader that builds the graph from the database.
 - With about 50 entries, the full unlock state for a user is computed per request from three small queries (progress, track order, gates). No cache is needed in v1. If it becomes slow, the cache key is the user's last progress timestamp.
-- **Locked entry responses** contain only the fields allowed by scope 3.4 (title, plus date for timeline). The body is never serialized, so nothing leaks through the network tab. Separate serializers for locked and unlocked entries make this hard to get wrong.
+- **Locked entry responses** contain only the fields allowed by scope 3.4 (title, plus date, certainty and importance for the timeline). The body is never serialized, so nothing leaks through the network tab. Separate serializers for locked and unlocked entries make this hard to get wrong.
 
 ### 6.2 Reading and quiz (scope 4)
 
@@ -206,7 +206,7 @@ The time zone is stored per user, with a default of the browser's zone captured 
 
 **API types.** The backend publishes an OpenAPI schema. `openapi-typescript` generates types into `frontend/src/api/` (`make types`). A CI or pre-commit check fails if generated types are stale.
 
-**Timeline.** D3 provides scales and zoom behavior only. React renders the SVG. Semantic zoom works as follows: the visible year range determines a minimum importance level, so zooming in reveals notable and minor events. Phase bands are rectangles on a separate layer and may overlap. Locked events render with title and date only. A click opens the side panel, which fetches the entry summary. The panel's quiz button is enabled only when the entry's progress is `in_progress` or later.
+**Timeline.** `GET /api/timeline` returns the period (1762-1878), the phase bands and every published event in order (year, then `year_order`, then date; this is also the default entry order), locked or unlocked. D3 provides scales and zoom behavior only. React renders the SVG. Semantic zoom works as follows: the visible year range determines a minimum importance level, so zooming in reveals notable and minor events. Phase bands are rectangles on a separate layer and may overlap. Locked events render with title and date only. A click opens the side panel, which fetches the entry summary. The panel's quiz button is enabled only when the entry's progress is `in_progress` or later.
 
 **Typography and theme.** Self-hosted fonts with full Cyrillic coverage: a serif for body text Source Serif 4 and a clean sans for UI. Theme tokens (parchment, cappuccino, mocha) are CSS variables defined once, so retuning colors is a single-file change. No animations or sounds in v1.
 

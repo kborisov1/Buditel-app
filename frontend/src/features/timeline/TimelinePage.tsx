@@ -19,10 +19,17 @@ export default function TimelinePage() {
       <QueryStatus query={timeline} />
       {timeline.data && (
         <div className="relative min-h-0 flex-1">
-          <TimelineChart timeline={timeline.data} selected={selected} onSelect={setSelected} />
+          <TimelineChart
+            timeline={timeline.data}
+            selected={selected}
+            onSelect={setSelected}
+          />
           {current && (
             <aside className="absolute bottom-16 right-0 top-10 z-10 w-80 max-w-full overflow-y-auto rounded border border-cappuccino bg-parchment p-4 shadow-lg">
-              <button className="float-right text-sm underline" onClick={() => setSelected(null)}>
+              <button
+                className="float-right text-sm underline"
+                onClick={() => setSelected(null)}
+              >
                 {t("timeline.close")}
               </button>
               <h2 className="font-serif text-2xl">{current.title}</h2>
@@ -33,7 +40,9 @@ export default function TimelinePage() {
                 <p className="mt-3">🔒 {t("common.locked")}</p>
               ) : (
                 <>
-                  {current.region && <p className="mt-2 text-sm">{current.region}</p>}
+                  {current.region && (
+                    <p className="mt-2 text-sm">{current.region}</p>
+                  )}
                   <p className="mt-2">{current.summary}</p>
                   <Link
                     to={`/entries/${current.slug}`}
@@ -49,15 +58,19 @@ export default function TimelinePage() {
                       {t("timeline.quiz")}
                     </Link>
                   ) : (
-                    current.progress === null && (
-                      <button
-                        disabled
-                        title={t("timeline.quizHint")}
-                        className="mt-2 block w-full rounded border border-mocha px-4 py-2 opacity-40"
-                      >
-                        {t("timeline.quiz")}
-                      </button>
-                    )
+                    <button
+                      disabled
+                      title={
+                        current.progress === null
+                          ? t("timeline.quizHint")
+                          : t("timeline.quizTaken")
+                      }
+                      className="mt-2 block w-full rounded border border-mocha px-4 py-2 opacity-40"
+                    >
+                      {current.progress === null
+                        ? t("timeline.quiz")
+                        : t("timeline.quizTaken")}
+                    </button>
                   )}
                 </>
               )}

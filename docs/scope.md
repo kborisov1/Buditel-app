@@ -111,7 +111,7 @@ The author can define gate events in the admin panel: an event that unlocks only
 7. The user may leave and come back. The entry stays **"in progress"**.
 8. **On fail:** only the score is shown. No correct answers are revealed. The user is told to re-read, then can retry.
 9. **On pass:** explanations are shown for the questions.
-10. **A passed quiz is never retaken.** Once an entry is `read`, its quiz cannot be started or submitted again, and the user moves on to the next entries. Only a failed quiz can be retried, and the pass XP is awarded once, on the first pass. (Resetting progress, scope 9, makes the entry unread again.)
+10. **A passed quiz is never retaken.** Once an entry is `read`, its quiz cannot be started or submitted again, and the user moves on to the next entries. Where the quiz button would be, a greyed-out, disabled "quiz already taken" button is shown instead. Only a failed quiz can be retried, and the pass XP is awarded once, on the first pass. (Resetting progress, scope 9, makes the entry unread again.)
 
 ### 4.1 Older-event check
 - A separate short check of **2 to 3 questions** from older, already-read events.

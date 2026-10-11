@@ -114,6 +114,15 @@ function EntryView({ entry }: { entry: EntryDetail }) {
               {t("entry.startQuiz")}
             </Link>
           )}
+          {entry.progress === "read" && (
+            <button
+              disabled
+              title={t("entry.quizTaken")}
+              className="rounded border border-mocha px-5 py-2 opacity-40"
+            >
+              {t("entry.quizTaken")}
+            </button>
+          )}
         </div>
         {finish.isError && <p role="alert">{t("common.error")}</p>}
       </article>

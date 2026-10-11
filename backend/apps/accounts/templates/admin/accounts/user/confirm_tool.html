@@ -1,0 +1,24 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<form method="post">
+  {% csrf_token %}
+  <p>{{ message }}</p>
+  <ul>
+    {% for user in users %}
+      <li>{{ user.username }} ({{ user.email }})</li>
+      <input type="hidden" name="_selected_action" value="{{ user.pk }}">
+    {% endfor %}
+  </ul>
+  {% if ask_days %}
+    <p>
+      <label for="id_days">Days forward:</label>
+      <input type="number" id="id_days" name="days" min="1" max="{{ max_days }}" value="1" required>
+    </p>
+  {% endif %}
+  <input type="hidden" name="action" value="{{ action }}">
+  <input type="hidden" name="confirm" value="yes">
+  <input type="submit" value="{{ submit }}">
+  <a href="." class="button cancel-link">Cancel</a>
+</form>
+{% endblock %}

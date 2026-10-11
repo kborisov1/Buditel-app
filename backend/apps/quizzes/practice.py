@@ -9,6 +9,7 @@ from typing import Any
 
 from django.contrib.auth.models import User
 
+from apps.activity.log import log_event
 from apps.content.library import filter_entries, published_entries
 from apps.core.app_settings import get_setting
 from apps.gamification import xp
@@ -66,7 +67,9 @@ def answer_practice(user: User, question_id: int, answer: Any) -> PracticeResult
     error = answer_error(question.type, answer)
     if error:
         raise InvalidAnswer(error)
-    if not is_correct(question.type, question.payload, answer):
+    correct = is_correct(question.type, question.payload, answer)
+    log_event("user", "practice_answer", user, question=question_id, correct=correct)
+    if not correct:
         return PracticeResult(question, False, 0)
     event = xp.award(
         user, XpEvent.Kind.PRACTICE, get_setting("xp_review_correct"), f"question:{question_id}"

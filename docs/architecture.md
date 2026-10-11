@@ -229,7 +229,7 @@ The stock Django admin, extended. All admin text is English.
 - Question editing through plain per-type fields (options one per line with `*` marking the correct one, a true/false choice, items one per line, accepted answers one per line), converted to the JSON payload on save.
 - Track and gate editing with ordering (drag-and-drop or a position field), plus the same-year `year_order`.
 - **Unlock graph view:** a read-only page that builds the dependency graph from tracks and gates, draws it (D3 or Mermaid-style SVG), and flags unreachable entries (no path from any track start) and cycles. Optional for the first ~10 events, wanted as content grows.
-- User tools: reset progress, shift date forward, as admin actions on the user page.
+- User tools (`accounts/tools.py`): reset progress and shift date forward, as admin actions on the user list, each with a confirmation page. Reset removes progress, attempts, review state, checks, challenges, XP and streak counters; the account, time zone and date offset stay. Shift adds 1 to 365 days to `date_offset_days`; to undo, edit the offset on the user page.
 - Finale percentage and other tunables edited through the `AppSetting` model.
 
 If a custom admin screen later outgrows Django admin templates, it can be replaced with a React screen on the same API and data model.
@@ -238,7 +238,7 @@ If a custom admin screen later outgrows Django admin templates, it can be replac
 
 ## 10. Activity logging
 
-One `ActivityLog` table, written through a single `log_event(category, type, user, **details)` helper. Logged events: logins, quiz starts and results, XP awards, reviews, content edits (admin signal handlers), and server errors (a logging handler that writes exceptions to the table). Details go in JSONB. The admin list view filters by user, date range, category and type. Retention is unlimited in v1; add a pruning command if the table grows.
+One `ActivityLog` table, written through a single `log_event(category, type, user, **details)` helper (`activity/log.py`), stamped with real UTC time rather than the user's shifted clock. Logged events: logins, failed logins and logouts, the daily activity (streak) update, finished reading, quiz starts and results, XP awards, review, practice and challenge answers, older-event checks, and the admin user tools. Content edits are mirrored from Django admin's own `LogEntry` by a signal, so every admin add, change and delete is covered. Server errors come from an `ActivityLogHandler` on the `django.request` logger. Details go in JSONB. The admin list view filters by user, date range, category and type. Retention is unlimited in v1; add a pruning command if the table grows.
 
 ---
 

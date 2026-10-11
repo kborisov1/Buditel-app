@@ -7,6 +7,7 @@ from django.db import transaction
 from django.db.models import Sum
 
 from apps.accounts.models import Profile
+from apps.activity.log import log_event
 from apps.core import clock
 from apps.core.app_settings import get_setting
 
@@ -47,6 +48,7 @@ def award(user: User, kind: XpEvent.Kind, amount: int, reference: str = "") -> X
 
 
 def _write(user: User, kind: str, amount: int, day: date, reference: str, now: datetime) -> XpEvent:
+    log_event("user", "xp_award", user, kind=kind, amount=amount, reference=reference)
     return XpEvent.objects.create(
         user=user, kind=kind, amount=amount, local_date=day, reference=reference, created_at=now
     )

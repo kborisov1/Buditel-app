@@ -2,6 +2,7 @@
 
 from django.contrib.auth.models import User
 
+from apps.activity.log import log_event
 from apps.content.models import Entry
 from apps.core import clock
 
@@ -20,11 +21,13 @@ def finish_reading(user: User, entry: Entry) -> EntryProgress:
     """
     if not is_unlocked(user, entry.pk):
         raise EntryLocked
-    progress, _ = EntryProgress.objects.get_or_create(
+    progress, created = EntryProgress.objects.get_or_create(
         user=user,
         entry=entry,
         defaults={"state": EntryProgress.State.IN_PROGRESS, "finished_reading_at": clock.now(user)},
     )
+    if created:
+        log_event("user", "finished_reading", user, entry=entry.slug)
     return progress
 
 

@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from django.db import transaction
 
 from apps.accounts.models import Profile
+from apps.activity.log import log_event
 from apps.content.models import Entry
 from apps.core import clock
 from apps.core.app_settings import get_setting
@@ -126,4 +127,13 @@ def submit_check(user: User, check_id: int, answers: dict[int, Any]) -> CheckRes
             )
             check.xp_awarded = event.amount if event else 0
         check.save()
+        log_event(
+            "user",
+            "check_submit",
+            user,
+            check=check.pk,
+            score=check.score,
+            total=len(items),
+            xp=check.xp_awarded,
+        )
     return CheckResult(check, items)

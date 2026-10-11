@@ -9,6 +9,7 @@ from typing import Any
 from django.contrib.auth.models import User
 from django.db import transaction
 
+from apps.activity.log import log_event
 from apps.core import clock
 from apps.core.app_settings import get_setting
 from apps.gamification import xp
@@ -138,4 +139,13 @@ def answer_challenge(user: User, question_id: int, answer: Any) -> ChallengeResu
                 f"{reference}:bonus",
             )
             bonus = event.amount if event else 0
+        log_event(
+            "user",
+            "challenge_answer",
+            user,
+            challenge=challenge.pk,
+            question=question_id,
+            correct=item.correct,
+            completed=completed,
+        )
     return ChallengeResult(question, bool(item.correct), gained, completed, bonus)

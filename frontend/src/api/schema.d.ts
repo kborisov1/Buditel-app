@@ -208,6 +208,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/daily-challenge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Daily Challenge */
+        get: operations["apps_quizzes_api_daily_challenge"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/daily-challenge/answer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Daily Challenge Answer */
+        post: operations["apps_quizzes_api_daily_challenge_answer"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/dashboard": {
         parameters: {
             query?: never;
@@ -616,6 +650,53 @@ export interface components {
         };
         /** PracticeAnswerIn */
         PracticeAnswerIn: {
+            /** Question Id */
+            question_id: number;
+            /** Answer */
+            answer: number | boolean | string[] | string;
+        };
+        /** ChallengeQuestionOut */
+        ChallengeQuestionOut: {
+            question: components["schemas"]["QuestionOut"];
+            /** Answered */
+            answered: boolean;
+            /** Correct */
+            correct: boolean | null;
+        };
+        /**
+         * DailyChallengeOut
+         * @description `id` is null while the user has no read entries to draw from.
+         */
+        DailyChallengeOut: {
+            /** Id */
+            id: number | null;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Completed */
+            completed: boolean;
+            /** Questions */
+            questions: components["schemas"]["ChallengeQuestionOut"][];
+        };
+        /** ChallengeResultOut */
+        ChallengeResultOut: {
+            /** Correct */
+            correct: boolean;
+            /** Correct Answer */
+            correct_answer: number | boolean | string[] | string;
+            /** Explanation */
+            explanation: string;
+            /** Xp Awarded */
+            xp_awarded: number;
+            /** Completed */
+            completed: boolean;
+            /** Bonus Xp */
+            bonus_xp: number;
+        };
+        /** ChallengeAnswerIn */
+        ChallengeAnswerIn: {
             /** Question Id */
             question_id: number;
             /** Answer */
@@ -1085,6 +1166,50 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PracticeResultOut"];
+                };
+            };
+        };
+    };
+    apps_quizzes_api_daily_challenge: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DailyChallengeOut"];
+                };
+            };
+        };
+    };
+    apps_quizzes_api_daily_challenge_answer: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChallengeAnswerIn"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChallengeResultOut"];
                 };
             };
         };

@@ -72,3 +72,46 @@ class QuizAttemptQuestion(models.Model):
 
     def __str__(self) -> str:
         return f"{self.attempt} #{self.position}"
+
+
+class DailyChallenge(models.Model):
+    """A fixed set of questions from the user's weak entries for one local day (scope 6.5)."""
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="daily_challenges"
+    )
+    local_date = models.DateField()
+    created_at = models.DateTimeField()
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-local_date"]
+        constraints = [
+            models.UniqueConstraint(fields=["user", "local_date"], name="unique_daily_challenge"),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.user} - challenge {self.local_date}"
+
+
+class DailyChallengeQuestion(models.Model):
+    challenge = models.ForeignKey(DailyChallenge, on_delete=models.CASCADE, related_name="items")
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="+")
+    position = models.PositiveSmallIntegerField()
+    answer = models.JSONField(null=True, blank=True)
+    correct = models.BooleanField(null=True, blank=True)
+    answered_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["challenge", "position"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["challenge", "position"], name="unique_challenge_position"
+            ),
+            models.UniqueConstraint(
+                fields=["challenge", "question"], name="unique_challenge_question"
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.challenge} #{self.position}"

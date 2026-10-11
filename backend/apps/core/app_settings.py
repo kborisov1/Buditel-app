@@ -44,6 +44,8 @@ SPECS: dict[str, Spec] = {
     "xp_check_correct": _xp("XP per correct answer in an older-event check (scope 6.1).", 3),
     "xp_daily_login": _xp("XP for the first login of the day (scope 6.1).", 5),
     "xp_daily_goal_bonus": _xp("XP bonus for reaching the daily goal (scope 6.1).", 10),
+    "xp_challenge_correct": _xp("XP per correct answer in the daily challenge (scope 6.5).", 2),
+    "xp_challenge_bonus": _xp("XP bonus for finishing the daily challenge (scope 6.5).", 10),
     "daily_goal_xp": Spec(
         default=40,
         help="XP per local day that completes the daily goal (scope 6.4).",

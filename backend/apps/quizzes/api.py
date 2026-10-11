@@ -1,6 +1,7 @@
 """Quiz endpoints (architecture 4, 6.2). A failed attempt returns the score only, so correct
 answers are never sent before submission or after a fail."""
 
+from datetime import date
 from typing import Literal, cast
 
 from django.contrib.auth.models import User
@@ -10,9 +11,10 @@ from ninja.errors import HttpError
 from pydantic import Field
 
 from apps.content.library import published_entries
+from apps.core import clock
 from apps.progress.reading import EntryLocked
 
-from . import practice
+from . import challenge, practice
 from .grading import correct_answer
 from .models import Question, QuizAttempt
 from .quiz import (
@@ -180,4 +182,78 @@ def practice_answer(request: HttpRequest, payload: PracticeAnswerIn) -> Practice
         correct_answer=correct_answer(question.type, question.payload),
         explanation=question.explanation,
         xp_awarded=result.xp_awarded,
+    )
+
+
+# Daily challenge (scope 6.5)
+
+
+class ChallengeQuestionOut(Schema):
+    question: QuestionOut
+    answered: bool
+    correct: bool | None
+
+
+class DailyChallengeOut(Schema):
+    """`id` is null while the user has no read entries to draw from."""
+
+    id: int | None
+    date: date
+    completed: bool
+    questions: list[ChallengeQuestionOut]
+
+
+class ChallengeAnswerIn(Schema):
+    question_id: int
+    answer: Answer
+
+
+class ChallengeResultOut(Schema):
+    correct: bool
+    correct_answer: Answer
+    explanation: str
+    xp_awarded: int
+    completed: bool
+    bonus_xp: int
+
+
+@router.get("/daily-challenge", response=DailyChallengeOut, tags=["daily-challenge"])
+def daily_challenge(request: HttpRequest) -> DailyChallengeOut:
+    user = _user(request)
+    today = challenge.todays_challenge(user)
+    if today is None:
+        return DailyChallengeOut(
+            id=None, date=clock.now(user).date(), completed=False, questions=[]
+        )
+    return DailyChallengeOut(
+        id=today.pk,
+        date=today.local_date,
+        completed=today.completed_at is not None,
+        questions=[
+            ChallengeQuestionOut(
+                question=QuestionOut(**shown_question(i.question)),
+                answered=i.answered_at is not None,
+                correct=i.correct,
+            )
+            for i in today.items.select_related("question")
+        ],
+    )
+
+
+@router.post("/daily-challenge/answer", response=ChallengeResultOut, tags=["daily-challenge"])
+def daily_challenge_answer(request: HttpRequest, payload: ChallengeAnswerIn) -> ChallengeResultOut:
+    try:
+        result = challenge.answer_challenge(_user(request), payload.question_id, payload.answer)
+    except challenge.NotInChallenge:
+        raise HttpError(409, "Not an open question of today's challenge") from None
+    except challenge.InvalidAnswer as error:
+        raise HttpError(400, str(error)) from None
+    question = result.question
+    return ChallengeResultOut(
+        correct=result.correct,
+        correct_answer=correct_answer(question.type, question.payload),
+        explanation=question.explanation,
+        xp_awarded=result.xp_awarded,
+        completed=result.completed,
+        bonus_xp=result.bonus_xp,
     )

@@ -44,7 +44,7 @@ Other types may be added later.
 - Optional free-text note for the Old Style date.
 - Certainty flag: exact / approximate / estimated. It controls how the timeline displays the date.
 - Entries without an exact date are placed at the best-guess date.
-- Events in the same year have an explicit order set by the author in the admin panel.
+- Events are ordered by year, then by an optional same-year order set by the author in the admin panel, then by date within the year. If two events share a date and a same-year order, the admin warns the author.
 
 ### 2.4 Questions
 - Each question belongs to exactly one entry. Written inside that entry's edit page.
@@ -74,7 +74,7 @@ Bands may overlap on the timeline.
 5. Liberation, 1877 to 1878
 
 ### 3.2 Tracks (themes, based on unlocking)
-Tracks run in parallel. Within each track, events unlock **strictly in order**.
+Tracks run in parallel. Within each track, events unlock **strictly in order**. That order follows the events' dates (see 2.3); the author does not set it by hand. Every event has a date, so every event in a track has a place in that order.
 - Awakening (short opening track every user starts with; the other tracks open once all its events are read)
 - Education and culture
 - Church struggle
@@ -94,7 +94,7 @@ The author can define gate events in the admin panel: an event that unlocks only
   - Lists: title only.
   - Related sidebar: title only.
 - Locked entries cannot be read.
-- An entry the user has already read stays readable, even if the author later reorders a track or adds gates.
+- An entry the user has already read stays readable, even if a track's order later changes (a new event or a corrected date) or the author adds gates.
 - Admin tool to visualize the unlock graph to catch unreachable or stuck entries. Wanted once content grows. For the initial ~10 events it is optional.
 - **Finale threshold:** the Finale unlocks when the user has read at least **80% of the events in every track**, rounded up. The percentage is an admin setting so it can be tuned as content grows.
 
@@ -250,7 +250,7 @@ Primary action: one **"Start today's session"** button that builds a queue: due 
 - Create, edit, preview, and publish entries in **Markdown with live preview** and structured fields (type, date, certainty, region, theme, track membership, importance, links, sources, images). Draft/published status.
 - Block publishing an entry with fewer than 6 questions.
 - Write questions inside each entry. Searchable "all questions" view.
-- Define track membership, order within tracks and within the same year, and gate events.
+- Define track membership, the order within the same year, and gate events. The order within a track follows from the dates.
 - Create and reset test accounts. Reset a user's progress. **Shift a user's date forward** to test streaks and review schedules.
 - Resetting progress removes everything the user has done (reading, quizzes, reviews, XP, streaks) but keeps the account, its time zone and any date shift.
 - **Activity logging**, searchable and filterable by user, date, and event type. Covers user activity (logins, quizzes, XP), content changes, and errors.

@@ -690,57 +690,57 @@
   {
     "model": "content.trackentry",
     "pk": 104,
-    "fields": {"track": 4, "entry": 104, "position": 4}
+    "fields": {"track": 4, "entry": 104}
   },
   {
     "model": "content.trackentry",
     "pk": 102,
-    "fields": {"track": 2, "entry": 102, "position": 2}
+    "fields": {"track": 2, "entry": 102}
   },
   {
     "model": "content.trackentry",
     "pk": 103,
-    "fields": {"track": 3, "entry": 103, "position": 2}
+    "fields": {"track": 3, "entry": 103}
   },
   {
     "model": "content.trackentry",
     "pk": 101,
-    "fields": {"track": 2, "entry": 101, "position": 1}
+    "fields": {"track": 2, "entry": 101}
   },
   {
     "model": "content.trackentry",
     "pk": 105,
-    "fields": {"track": 5, "entry": 105, "position": 1}
+    "fields": {"track": 5, "entry": 105}
   },
   {
     "model": "content.trackentry",
     "pk": 111,
-    "fields": {"track": 1, "entry": 1, "position": 1}
+    "fields": {"track": 1, "entry": 1}
   },
   {
     "model": "content.trackentry",
     "pk": 112,
-    "fields": {"track": 1, "entry": 109, "position": 2}
+    "fields": {"track": 1, "entry": 109}
   },
   {
     "model": "content.trackentry",
     "pk": 113,
-    "fields": {"track": 3, "entry": 106, "position": 1}
+    "fields": {"track": 3, "entry": 106}
   },
   {
     "model": "content.trackentry",
     "pk": 114,
-    "fields": {"track": 4, "entry": 107, "position": 1}
+    "fields": {"track": 4, "entry": 107}
   },
   {
     "model": "content.trackentry",
     "pk": 115,
-    "fields": {"track": 4, "entry": 108, "position": 2}
+    "fields": {"track": 4, "entry": 108}
   },
   {
     "model": "content.trackentry",
     "pk": 116,
-    "fields": {"track": 4, "entry": 110, "position": 3}
+    "fields": {"track": 4, "entry": 110}
   },
   {
     "model": "content.gaterequirement",

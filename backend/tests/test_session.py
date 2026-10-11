@@ -225,8 +225,8 @@ def test_session_order(client: Client, user: User) -> None:
 
 def test_session_skips_locked_entries(client: Client, user: User) -> None:
     track = Track.objects.get(kind=Track.Kind.OPENING)
-    for position, slug in enumerate(["first", "second"], start=1):
-        TrackEntry.objects.create(track=track, entry=_entry(slug), position=position)
+    for year, slug in [(1800, "first"), (1801, "second")]:
+        TrackEntry.objects.create(track=track, entry=_entry(slug, on=date(year, 1, 1)))
     steps = client.get("/api/session").json()["steps"]
     assert [s.get("slug") for s in steps] == ["first"]
 

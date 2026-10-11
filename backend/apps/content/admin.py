@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import Any
 
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.db.models import Count, QuerySet
-from django.forms import ModelForm
+from django.forms import BaseInlineFormSet, ModelForm
 from django.http import HttpRequest
 from django.template.response import TemplateResponse
 from django.urls import URLPattern, path, reverse
@@ -24,6 +24,7 @@ from .models import (
     Track,
     TrackEntry,
 )
+from .track_order import tie_warnings
 from .widgets import MarkdownPreviewWidget
 
 
@@ -62,10 +63,10 @@ class EntryTrackInline(admin.TabularInline):  # type: ignore[type-arg]
     """Track membership on the event's page (scope 3.2, 9)."""
 
     model = TrackEntry
-    fields = ["track", "position"]
+    fields = ["track"]
     extra = 0
     verbose_name = "track"
-    verbose_name_plural = "tracks (position = order within the track)"
+    verbose_name_plural = "tracks (order within a track follows the event date)"
 
 
 class GateInline(admin.TabularInline):  # type: ignore[type-arg]
@@ -154,12 +155,37 @@ class EntryAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
         )
         return form
 
+    def save_related(
+        self,
+        request: HttpRequest,
+        form: ModelForm[Entry],
+        formsets: list[BaseInlineFormSet[Any, Entry, Any]],
+        change: bool,
+    ) -> None:
+        super().save_related(request, form, formsets, change)
+        entry = form.instance
+        track_ids = entry.track_items.values_list("track_id", flat=True)
+        for warning in tie_warnings(track_ids, entry_id=entry.pk):
+            messages.warning(request, warning)
+
 
 class TrackEntryInline(admin.TabularInline):  # type: ignore[type-arg]
+    """Events listed in unlock order, which follows their dates (scope 3.2)."""
+
     model = TrackEntry
-    fields = ["position", "entry"]
+    fields = ["entry", "event_date", "year_order"]
+    readonly_fields = ["event_date", "year_order"]
     autocomplete_fields = ["entry"]
     extra = 1
+    verbose_name_plural = "events (in unlock order, by date and year order)"
+
+    @admin.display(description="date")
+    def event_date(self, obj: TrackEntry) -> object:
+        return obj.entry.event_date if obj.pk else ""
+
+    @admin.display(description="year order")
+    def year_order(self, obj: TrackEntry) -> object:
+        return obj.entry.year_order if obj.pk else ""
 
 
 @admin.register(Track)
@@ -174,6 +200,17 @@ class TrackAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
     @admin.display(description="events", ordering="event_count")
     def event_count(self, obj: Track) -> int:
         return int(getattr(obj, "event_count", 0))
+
+    def save_related(
+        self,
+        request: HttpRequest,
+        form: ModelForm[Track],
+        formsets: list[BaseInlineFormSet[Any, Track, Any]],
+        change: bool,
+    ) -> None:
+        super().save_related(request, form, formsets, change)
+        for warning in tie_warnings([form.instance.pk]):
+            messages.warning(request, warning)
 
     def get_urls(self) -> list[URLPattern]:
         graph = path(

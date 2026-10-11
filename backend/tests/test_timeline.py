@@ -69,8 +69,8 @@ def test_locked_and_unlocked_shapes(client: Client, user: User) -> None:
         date_certainty=Entry.DateCertainty.APPROXIMATE,
         importance=Entry.Importance.MINOR,
     )
-    TrackEntry.objects.create(track=opening, entry=first, position=1)
-    TrackEntry.objects.create(track=opening, entry=second, position=2)
+    TrackEntry.objects.create(track=opening, entry=first)
+    TrackEntry.objects.create(track=opening, entry=second)
     EntryProgress.objects.create(
         user=user, entry=first, state="in_progress", finished_reading_at="2026-01-01T00:00Z"
     )

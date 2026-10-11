@@ -165,9 +165,11 @@ def client(user: User, monkeypatch: pytest.MonkeyPatch) -> Client:
 @pytest.fixture
 def entries(db: None) -> tuple[Entry, Entry]:
     first, second = _event("first"), _event("second")
+    second.year_order = 1
+    second.save()
     track = Track.objects.get(kind=Track.Kind.OPENING)
-    TrackEntry.objects.create(track=track, entry=first, position=1)
-    TrackEntry.objects.create(track=track, entry=second, position=2)
+    TrackEntry.objects.create(track=track, entry=first)
+    TrackEntry.objects.create(track=track, entry=second)
     return first, second
 
 

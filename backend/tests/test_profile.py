@@ -76,9 +76,9 @@ def test_profile_basics(client: Client) -> None:
 def test_track_progress(client: Client, user: User) -> None:
     opening = Track.objects.get(kind=Track.Kind.OPENING)
     a, b = _event("a"), _event("b")
-    TrackEntry.objects.create(track=opening, entry=a, position=1)
-    TrackEntry.objects.create(track=opening, entry=b, position=2)
-    TrackEntry.objects.create(track=opening, entry=_event("draft", False), position=3)
+    TrackEntry.objects.create(track=opening, entry=a)
+    TrackEntry.objects.create(track=opening, entry=b)
+    TrackEntry.objects.create(track=opening, entry=_event("draft", False))
     EntryProgress.objects.create(
         user=user, entry=a, state="read", finished_reading_at=NOW, passed_at=NOW
     )

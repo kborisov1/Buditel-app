@@ -41,7 +41,7 @@ function EntryView({ entry }: { entry: EntryDetail }) {
     entry.images.map((i) => [String(i.position), i]),
   );
   const mainImage = entry.images[0];
-  const canTakeQuiz = entry.progress !== null;
+  const canTakeQuiz = entry.progress === "in_progress"; // a passed quiz is not retaken (scope 4)
 
   return (
     <div className="grid gap-8 lg:grid-cols-[1fr_16rem]">

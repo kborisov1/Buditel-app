@@ -18,6 +18,7 @@ from . import challenge, practice
 from .grading import correct_answer
 from .models import Question, QuizAttempt
 from .quiz import (
+    AlreadyPassed,
     AlreadySubmitted,
     InvalidAnswers,
     ReadingNotFinished,
@@ -90,6 +91,8 @@ def start(request: HttpRequest, slug: str) -> QuizOut:
         raise HttpError(403, "Entry is locked") from None
     except ReadingNotFinished:
         raise HttpError(409, "Finish reading first") from None
+    except AlreadyPassed:
+        raise HttpError(409, "Quiz already passed") from None
     items = attempt.items.select_related("question")
     return QuizOut(
         attempt_id=attempt.pk,
@@ -110,6 +113,8 @@ def submit(
         raise HttpError(404, "Not found") from None
     except AlreadySubmitted:
         raise HttpError(409, "Already submitted") from None
+    except AlreadyPassed:
+        raise HttpError(409, "Quiz already passed") from None
     except InvalidAnswers as error:
         raise HttpError(400, str(error)) from None
     attempt = result.attempt

@@ -1,11 +1,12 @@
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import type { Timeline } from "../../api/client";
-import { MAX_ZOOM, toYear } from "./layout";
+import { assignLanes, MAX_ZOOM, phaseColor, toYear } from "./layout";
 
 interface Props {
   full: [number, number];
   events: Timeline["events"];
+  phases: Timeline["phases"];
   /** The year span the chart currently shows. */
   visible: [number, number];
   onChange: (from: number, to: number) => void;
@@ -15,13 +16,16 @@ type Drag = { mode: "pan" | "left" | "right"; startX: number; from: number; to: 
 
 /** Overview bar of the whole period. The window shows what the chart shows: drag it to pan,
  * drag its edges to zoom, click the bar to jump there. */
-export default function TimelineScrubber({ full, events, visible, onChange }: Props) {
+export default function TimelineScrubber({ full, events, phases, visible, onChange }: Props) {
   const { t } = useTranslation();
   const trackRef = useRef<HTMLDivElement>(null);
   const drag = useRef<Drag | null>(null);
   const span = full[1] - full[0];
   const minSpan = span / MAX_ZOOM;
   const [from, to] = visible;
+  const strips = assignLanes(
+    phases.map((p, index) => ({ ...p, index, start: toYear(p.start_date), end: toYear(p.end_date) })),
+  );
   const pct = (year: number) => `${((year - full[0]) / span) * 100}%`;
 
   const yearsPerPx = () => span / (trackRef.current?.clientWidth || 1);
@@ -62,12 +66,24 @@ export default function TimelineScrubber({ full, events, visible, onChange }: Pr
     <div
       ref={trackRef}
       onPointerDown={jump}
-      className="relative mt-3 h-12 shrink-0 cursor-pointer rounded border border-cappuccino bg-white/40"
+      className="relative mt-3 h-20 shrink-0 cursor-pointer rounded border border-cappuccino bg-white/40"
     >
+      {strips.map((s) => (
+        <span
+          key={s.id}
+          className="pointer-events-none absolute h-1.5 rounded-full opacity-80"
+          style={{
+            left: pct(s.start),
+            width: `${((s.end - s.start) / span) * 100}%`,
+            bottom: 6 + s.lane * 8,
+            background: phaseColor(s.index),
+          }}
+        />
+      ))}
       {events.map((e) => (
         <span
           key={e.id}
-          className="pointer-events-none absolute top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-mocha/60"
+          className="pointer-events-none absolute top-[38%] h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-mocha/70"
           style={{ left: pct(toYear(e.event_date)) }}
         />
       ))}
@@ -92,7 +108,7 @@ export default function TimelineScrubber({ full, events, visible, onChange }: Pr
             key={side}
             onPointerDown={(e) => begin(e, side)}
             aria-hidden
-            className={`absolute inset-y-0 w-2 cursor-ew-resize bg-mocha ${side === "left" ? "-left-1" : "-right-1"}`}
+            className={`absolute inset-y-0 w-3 cursor-ew-resize rounded bg-mocha ${side === "left" ? "-left-1.5" : "-right-1.5"}`}
           />
         ))}
       </div>

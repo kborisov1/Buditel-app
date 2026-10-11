@@ -5,7 +5,12 @@ import { useMe } from "./features/auth/useAuth";
 import DashboardPage from "./features/dashboard/DashboardPage";
 import EntryPage from "./features/entry/EntryPage";
 import LibraryPage from "./features/library/LibraryPage";
-import PlaceholderPage from "./features/placeholder/PlaceholderPage";
+import ChallengePage from "./features/challenge/ChallengePage";
+import CheckPage from "./features/check/CheckPage";
+import PracticePage from "./features/practice/PracticePage";
+import ProfilePage from "./features/profile/ProfilePage";
+import ReviewPage from "./features/review/ReviewPage";
+import SessionPage from "./features/session/SessionPage";
 import QuizPage from "./features/quiz/QuizPage";
 import TimelinePage from "./features/timeline/TimelinePage";
 
@@ -23,8 +28,12 @@ export default function App() {
         <Route path="library" element={<LibraryPage />} />
         <Route path="entries/:slug" element={<EntryPage />} />
         <Route path="entries/:slug/quiz" element={<QuizPage />} />
-        <Route path="practice" element={<PlaceholderPage name="practice" />} />
-        <Route path="profile" element={<PlaceholderPage name="profile" />} />
+        <Route path="review" element={<ReviewPage />} />
+        <Route path="session" element={<SessionPage />} />
+        <Route path="checks/:id" element={<CheckPage />} />
+        <Route path="practice" element={<PracticePage />} />
+        <Route path="challenge" element={<ChallengePage />} />
+        <Route path="profile" element={<ProfilePage />} />
       </Route>
     </Routes>
   );

@@ -3,16 +3,14 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useParams } from "react-router-dom";
 import { api, ApiError, type Quiz, type QuizAnswer, type QuizResult } from "../../api/client";
-import { useRefreshProgress } from "../entry/useEntries";
+import { useRefreshLearnerData } from "../progress";
+import ResultList from "./ResultList";
 import QuestionInput, { initialAnswer, isAnswered } from "./QuestionInput";
-
-const show = (answer: QuizAnswer): string =>
-  Array.isArray(answer) ? answer.join(" → ") : String(answer);
 
 export default function QuizPage() {
   const { t } = useTranslation();
   const { slug = "" } = useParams();
-  const refresh = useRefreshProgress();
+  const refresh = useRefreshLearnerData();
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [answers, setAnswers] = useState<Record<number, QuizAnswer | undefined>>({});
   const [result, setResult] = useState<QuizResult | null>(null);
@@ -72,26 +70,7 @@ export default function QuizPage() {
         {result.passed ? (
           <>
             <p>{t("quiz.xp", { xp: result.xp_awarded })}</p>
-            <ol className="mt-6 flex flex-col gap-4">
-              {result.results.map((r) => {
-                const question = quiz.questions.find((q) => q.id === r.question_id);
-                return (
-                  <li key={r.question_id} className="rounded border border-cappuccino p-4">
-                    <p className="font-semibold">{question?.prompt}</p>
-                    <p>{r.correct ? `✓ ${t("quiz.correct")}` : `✗ ${t("quiz.incorrect")}`}</p>
-                    <p className="text-sm">
-                      {t("quiz.yourAnswer")}: {show(r.your_answer)}
-                    </p>
-                    {!r.correct && (
-                      <p className="text-sm">
-                        {t("quiz.correctAnswer")}: {show(r.correct_answer)}
-                      </p>
-                    )}
-                    {r.explanation && <p className="mt-2">{r.explanation}</p>}
-                  </li>
-                );
-              })}
-            </ol>
+            <ResultList questions={quiz.questions} results={result.results} />
           </>
         ) : (
           <p>{t("quiz.failedHint")}</p>

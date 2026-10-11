@@ -1,5 +1,6 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { api } from "../../api/client";
+import { useRefreshLearnerData } from "../progress";
 
 export function useEntries(filters: { type?: string; q?: string } = {}) {
   return useQuery({
@@ -16,14 +17,8 @@ export function useEntry(slug: string | undefined) {
   });
 }
 
-/** Progress changes what is unlocked, so every cached learner query is refetched. */
-export function useRefreshProgress() {
-  const queryClient = useQueryClient();
-  return () => queryClient.invalidateQueries({ predicate: (q) => q.queryKey[0] !== "me" });
-}
-
 export function useFinishedReading(slug: string) {
-  const refresh = useRefreshProgress();
+  const refresh = useRefreshLearnerData();
   return useMutation({
     mutationFn: () => api.finishedReading(slug),
     onSuccess: refresh,

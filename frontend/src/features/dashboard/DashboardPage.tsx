@@ -1,10 +1,10 @@
+import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import { api } from "../../api/client";
 import QueryStatus from "../../components/Status";
 import { useEntries } from "../entry/useEntries";
-
-/** Panels backed by endpoints that do not exist yet are marked as coming soon (architecture 4). */
-const PENDING_PANELS = ["goal", "streak", "reviews", "level"] as const;
+import { LevelBar, StreakText } from "./parts";
 
 function Panel({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -17,62 +17,81 @@ function Panel({ title, children }: { title: string; children: React.ReactNode }
 
 export default function DashboardPage() {
   const { t } = useTranslation();
+  const dashboard = useQuery({ queryKey: ["dashboard"], queryFn: api.dashboard });
   const entries = useEntries();
+  const d = dashboard.data;
   const unlocked = (entries.data ?? []).filter((e) => !e.locked);
   const inProgress = unlocked.filter((e) => e.progress === "in_progress");
-  const next = unlocked.filter((e) => e.type === "event" && e.progress === null).slice(0, 5);
+
+  const primary = "rounded bg-mocha px-5 py-2 text-parchment";
+  const secondary = "rounded border border-mocha px-4 py-2";
 
   return (
     <div>
       <h1 className="mb-4 font-serif text-3xl">{t("dashboard.title")}</h1>
       <div className="mb-6 flex flex-wrap gap-3">
-        <button disabled title={t("common.comingSoon")} className="rounded bg-mocha px-5 py-2 text-parchment opacity-50">
+        <Link to="/session" className={primary}>
           {t("dashboard.startSession")}
-        </button>
-        <button disabled className="rounded border border-mocha px-4 py-2 opacity-50">
+        </Link>
+        <Link to="/review" className={secondary}>
           {t("dashboard.reviewOnly")}
-        </button>
-        <Link to="/library" className="rounded border border-mocha px-4 py-2">
+        </Link>
+        <Link to="/library" className={secondary}>
           {t("dashboard.continueReading")}
         </Link>
-        <Link to="/practice" className="rounded border border-mocha px-4 py-2">
+        <Link to="/practice" className={secondary}>
           {t("dashboard.practice")}
         </Link>
+        <Link to="/challenge" className={secondary}>
+          {t("dashboard.challenge")}
+        </Link>
       </div>
-      <QueryStatus query={entries} />
-      <div className="grid gap-4 md:grid-cols-2">
-        <Panel title={t("dashboard.continue")}>
-          {inProgress.length === 0 ? (
-            <p>{t("dashboard.nothingToContinue")}</p>
-          ) : (
-            <ul className="list-disc pl-5">
-              {inProgress.map((e) => (
-                <li key={e.id}>
-                  <Link to={`/entries/${e.slug}`} className="underline">
-                    {e.title}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Panel>
-        <Panel title={t("dashboard.next")}>
-          <ul className="list-disc pl-5">
-            {next.map((e) => (
-              <li key={e.id}>
-                <Link to={`/entries/${e.slug}`} className="underline">
-                  {e.title}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </Panel>
-        {PENDING_PANELS.map((key) => (
-          <Panel key={key} title={t(`dashboard.${key}`)}>
-            <p className="opacity-60">{t("common.comingSoon")}</p>
+      <QueryStatus query={dashboard} />
+      {d && (
+        <div className="grid gap-4 md:grid-cols-2">
+          <Panel title={t("dashboard.goal")}>
+            <progress
+              className="h-3 w-full"
+              value={Math.min(d.goal.earned_today, d.goal.target)}
+              max={d.goal.target}
+              aria-label={t("dashboard.goal")}
+            />
+            <p className="text-sm">
+              {d.goal.earned_today} / {d.goal.target} XP
+              {d.goal.reached && ` · ✓ ${t("dashboard.goalReached")}`}
+            </p>
           </Panel>
-        ))}
-      </div>
+          <Panel title={t("dashboard.streak")}>
+            <StreakText streak={d.streak} />
+          </Panel>
+          <Panel title={t("dashboard.reviews")}>
+            <p className="text-2xl">{d.reviews_due}</p>
+            {d.reviews_due > 0 && (
+              <Link to="/review" className="underline">
+                {t("dashboard.reviewOnly")}
+              </Link>
+            )}
+          </Panel>
+          <Panel title={t("dashboard.level")}>
+            <LevelBar level={d.level} />
+          </Panel>
+          <Panel title={t("dashboard.continue")}>
+            {inProgress.length === 0 ? (
+              <p>{t("dashboard.nothingToContinue")}</p>
+            ) : (
+              <ul className="list-disc pl-5">
+                {inProgress.map((e) => (
+                  <li key={e.id}>
+                    <Link to={`/entries/${e.slug}`} className="underline">
+                      {e.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Panel>
+        </div>
+      )}
     </div>
   );
 }

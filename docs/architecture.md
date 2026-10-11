@@ -88,7 +88,7 @@ Business rules live in plain service modules inside each app (for example `progr
 - `review`: today's queue, answer
 - `practice`: start a session from topic and period
 - `daily-challenge`: get, answer
-- `profile`: stats, per-track progress, result history
+- `profile`: email, level, streak, per-track progress, result history (`progress/stats.py`)
 - `search`: title search
 
 ---

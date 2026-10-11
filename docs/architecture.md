@@ -269,7 +269,7 @@ The top bar calls `/api/search` as the user types (debounced, from 2 characters,
 | `make types` | regenerate frontend API types from the OpenAPI schema |
 | `make test` | backend pytest, frontend unit tests |
 | `make backup` | `pg_dump` to `backups/` with a timestamp, plus a copy of `media/` |
-| `make seed` | load a small sample dataset (eleven published events: five one per track, six in no track, with questions and one gate) for development. Fixture: `backend/apps/content/fixtures/sample.json` |
+| `make seed` | load a small sample dataset (eleven published events in the five tracks, in date order, with questions, sources and one gate) for development. Fixture: `backend/apps/content/fixtures/sample.json` |
 
 Backups matter even locally, because the authored content is the project's main asset. `backups/` and `.env` are git-ignored. Content can additionally be exported to JSON fixtures (`dumpdata`) and committed, giving versioned history of what you write.
 

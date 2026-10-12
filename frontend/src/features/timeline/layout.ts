@@ -6,10 +6,10 @@ export function toYear(date: string): number {
   return Number(date.slice(0, 4)) + (at - start) / (365.25 * 86400000);
 }
 
-/** Semantic zoom: the zoom factor decides the least important level that is shown. */
-export function visibleImportance(zoom: number): Set<string> {
-  if (zoom >= 6) return new Set(["major", "notable", "minor"]);
-  if (zoom >= 2.5) return new Set(["major", "notable"]);
+/** Semantic zoom (scope 7.2): every event has a dot; the zoom factor decides which levels also get a title. */
+export function titledImportance(zoom: number): Set<string> {
+  if (zoom >= 3) return new Set(["major", "notable", "minor"]);
+  if (zoom >= 1.5) return new Set(["major", "notable"]);
   return new Set(["major"]);
 }
 

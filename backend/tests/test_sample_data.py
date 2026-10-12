@@ -95,7 +95,12 @@ def test_sample_unlock_opens_other_tracks_after_awakening() -> None:
         _id("ohridska-arhiepiskopiya-ukinata"),
         _id("kyuchuk-kaynardzhiyski-mir"),
     }
-    assert unlocked_ids(graph, awakening) == awakening | first_events
+    # Scope 3.4: the people linked to the read Awakening events unlock with them.
+    awakening_people = {
+        _id("paisiy-hilendarski"),
+        _id("sofroniy-vrachanski"),
+    }
+    assert unlocked_ids(graph, awakening) == awakening | first_events | awakening_people
 
 
 @pytest.mark.django_db
@@ -107,3 +112,34 @@ def test_sample_unlock_graph_has_no_blocking_problems() -> None:
     report = analyse(graph, {})
     assert [i for i in report.issues if i.blocking] == []
     assert report.reachable == graph.events | graph.others
+
+
+@pytest.mark.django_db
+def test_sample_people_are_linked_and_publishable() -> None:
+    call_command("loaddata", "sample", verbosity=0)
+
+    people = Entry.objects.filter(status=Entry.Status.PUBLISHED, type=Entry.Type.PERSON)
+    assert people.count() == 5
+    for person in people:
+        # Non-event entries carry no date or importance (scope 2.2, rules.py).
+        assert person.event_date is None, person.slug
+        assert person.importance == "", person.slug
+        linked = person.relations.filter(to_entry__type=Entry.Type.EVENT)
+        assert linked.exists(), person.slug
+        questions = Question.objects.filter(entry=person)
+        assert questions.count() >= MIN_QUESTIONS, person.slug
+        for question in questions:
+            _, errors = question_errors(question.type, question.prompt, question.payload)
+            assert errors == [], question.prompt
+
+
+@pytest.mark.django_db
+def test_sample_person_unlocks_when_linked_event_is_read() -> None:
+    call_command("loaddata", "sample", verbosity=0)
+    graph = load_graph()
+
+    # Scope 3.4: a non-event entry unlocks once a linked event is read.
+    karadjordje = _id("karadordzhe")
+    serbian_uprising = _id("parvoto-sarbsko-vastanie")
+    assert karadjordje not in unlocked_ids(graph, set())
+    assert karadjordje in unlocked_ids(graph, {serbian_uprising})

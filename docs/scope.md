@@ -206,7 +206,7 @@ Primary action: one **"Start today's session"** button that builds a queue: due 
 ### 7.2 Timeline
 - One continuous horizontal line from 1762 to 1878, navigated by **zooming in and out** (not horizontal scrolling).
 - **Events only** are shown.
-- Events have 3 importance levels (**major, notable, minor**), set by the author. Zooming in reveals more events by importance level.
+- Events have 3 importance levels (**major, notable, minor**), set by the author. Every event always shows as a dot. Major events also show their title at every zoom level; notable and minor events get their title once the user zooms in (notable first, then minor).
 - Colored phase bands (see 3.1), which may overlap.
 - Locked events appear with title and date only.
 - **Clicking an event opens a side panel** that keeps the timeline visible. Panel contents: title, dates, places, people, short summary, and a big button to open the detailed entry page, plus a button to take the quiz (the quiz button becomes available only once "Finished reading" has been clicked on that entry). Locked events show only title and date in the panel.

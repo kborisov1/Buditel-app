@@ -7,7 +7,7 @@ import {
   toYear,
   viewTransform,
   visibleFractions,
-  visibleImportance,
+  titledImportance,
 } from "./layout";
 
 test("toYear places a date inside its year", () => {
@@ -15,11 +15,11 @@ test("toYear places a date inside its year", () => {
   expect(toYear("1762-07-02")).toBeCloseTo(1762.5, 1);
 });
 
-test("zooming in reveals less important events", () => {
-  expect([...visibleImportance(1)]).toEqual(["major"]);
-  expect(visibleImportance(3).has("notable")).toBe(true);
-  expect(visibleImportance(3).has("minor")).toBe(false);
-  expect(visibleImportance(10).has("minor")).toBe(true);
+test("zooming in adds titles for less important events", () => {
+  expect([...titledImportance(1)]).toEqual(["major"]);
+  expect(titledImportance(2).has("notable")).toBe(true);
+  expect(titledImportance(2).has("minor")).toBe(false);
+  expect(titledImportance(4).has("minor")).toBe(true);
 });
 
 test("overlapping phases get separate lanes, others share one", () => {

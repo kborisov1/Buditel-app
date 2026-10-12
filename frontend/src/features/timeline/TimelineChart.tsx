@@ -12,7 +12,7 @@ import {
   toYear,
   viewTransform,
   visibleFractions,
-  visibleImportance,
+  titledImportance,
 } from "./layout";
 import TimelineScrubber from "./TimelineScrubber";
 
@@ -109,15 +109,17 @@ export default function TimelineChart({ timeline, selected, onSelect }: Props) {
   const step = pickGridStep(w / Math.max(to - from, 0.001));
   const grid = gridTicks(from, to, step);
 
-  const shown = visibleImportance(view.k);
+  const titled = titledImportance(view.k);
   const events = timeline.events
-    .filter((e) => shown.has(e.importance) || e.slug === selected)
-    .map((e) => ({ event: e, px: x(toYear(e.event_date)) }))
+    .map((e) => ({ event: e, px: x(toYear(e.event_date)), titled: titled.has(e.importance) || e.slug === selected }))
     .filter(({ px }) => px >= -20 && px <= w + 20);
-  const rows = assignLabelRows(
-    events.map(({ event, px }) => ({ x: px, width: event.title.length * CHAR_W })),
+  // Only titled events compete for label rows; the others stay plain dots.
+  const titledEvents = events.filter((e) => e.titled);
+  const titledRows = assignLabelRows(
+    titledEvents.map(({ event, px }) => ({ x: px, width: event.title.length * CHAR_W })),
     labelRows,
   );
+  const rows = events.map((e) => (e.titled ? titledRows[titledEvents.indexOf(e)] : -1));
 
   return (
     <div className="flex h-full min-h-0 flex-col">

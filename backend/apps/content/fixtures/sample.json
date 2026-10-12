@@ -1186,5 +1186,738 @@
       "created_at": "2026-10-11T00:00:00Z",
       "updated_at": "2026-10-11T00:00:00Z"
     }
+  },
+  {
+    "model": "content.entry",
+    "pk": 111,
+    "fields": {
+      "type": "person",
+      "slug": "paisiy-hilendarski",
+      "title": "Паисий Хилендарски",
+      "summary": "Монах от Хилендарския манастир на Света гора, автор на „История славянобългарска“ (1762).",
+      "body_md": "Паисий Хилендарски пише „История славянобългарска“ в Хилендарския манастир. Трудът събира сведения за българската история и има голямо значение за събуждането на национално самосъзнание.\n\nКнигите му се разпространяват на ръка и стават основа за следващите поколения книжовници.",
+      "event_date": null,
+      "date_certainty": "exact",
+      "date_note_old_style": "",
+      "region": "Света гора",
+      "importance": "",
+      "year_order": 0,
+      "status": "published",
+      "created_at": "2026-10-12T00:00:00Z",
+      "updated_at": "2026-10-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "quizzes.question",
+    "pk": 166,
+    "fields": {
+      "entry": 111,
+      "type": "multiple_choice",
+      "prompt": "Къде живее и работи Паисий, когато пише историята?",
+      "payload": {
+        "options": [
+          "Хилендарския манастир",
+          "Рилския манастир",
+          "Бачковския манастир",
+          "Троянския манастир"
+        ],
+        "correct": 0
+      },
+      "explanation": "Паисий пише историята в Хилендарския манастир на Света гора.",
+      "created_at": "2026-10-12T00:00:00Z",
+      "updated_at": "2026-10-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "quizzes.question",
+    "pk": 167,
+    "fields": {
+      "entry": 111,
+      "type": "multiple_choice",
+      "prompt": "Кой е основният труд на Паисий?",
+      "payload": {
+        "options": [
+          "История славянобългарска",
+          "Наука риторика",
+          "Неделник",
+          "Осново учение"
+        ],
+        "correct": 0
+      },
+      "explanation": "Основният му труд е „История славянобългарска“ (1762).",
+      "created_at": "2026-10-12T00:00:00Z",
+      "updated_at": "2026-10-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "quizzes.question",
+    "pk": 168,
+    "fields": {
+      "entry": 111,
+      "type": "true_false",
+      "prompt": "Паисий Хилендарски е авторът на „Неделник“.",
+      "payload": {
+        "answer": false
+      },
+      "explanation": "„Неделник“ е на Софроний Врачански, а не на Паисий.",
+      "created_at": "2026-10-12T00:00:00Z",
+      "updated_at": "2026-10-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "quizzes.question",
+    "pk": 169,
+    "fields": {
+      "entry": 111,
+      "type": "date_ordering",
+      "prompt": "Подредете събитията хронологично.",
+      "payload": {
+        "items": [
+          "Написване на История Славянобългарска (1762)",
+          "Премахване на Охридската архиепископия (1767)",
+          "Букурещкият мирен договор (1812)"
+        ]
+      },
+      "explanation": "Историята (1762) предхожда премахването на архиепископията (1767) и Букурещкия мир (1812).",
+      "created_at": "2026-10-12T00:00:00Z",
+      "updated_at": "2026-10-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "quizzes.question",
+    "pk": 170,
+    "fields": {
+      "entry": 111,
+      "type": "fill_blank",
+      "prompt": "Паисий написва „История славянобългарска“ през ___.",
+      "payload": {
+        "answers": [
+          "1762",
+          "1762 г."
+        ]
+      },
+      "explanation": "Трудът е написан през 1762 г.",
+      "created_at": "2026-10-12T00:00:00Z",
+      "updated_at": "2026-10-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "quizzes.question",
+    "pk": 171,
+    "fields": {
+      "entry": 111,
+      "type": "fill_blank",
+      "prompt": "Паисий е монах в ___ манастир на Света гора.",
+      "payload": {
+        "answers": [
+          "Хилендарския"
+        ]
+      },
+      "explanation": "Паисий е монах в Хилендарския манастир.",
+      "created_at": "2026-10-12T00:00:00Z",
+      "updated_at": "2026-10-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "content.entry",
+    "pk": 112,
+    "fields": {
+      "type": "person",
+      "slug": "sofroniy-vrachanski",
+      "title": "Софроний Врачански",
+      "summary": "Български книжовник и духовник, автор на „Неделник“ (1806).",
+      "body_md": "Софроний Врачански е един от първите български автори, които пишат за широк читателски кръг. „Неделник“ съдържа поучения за неделите и празниците на разговорен български.\n\nДейността му показва връзката между църковното слово и националното просвещение.",
+      "event_date": null,
+      "date_certainty": "exact",
+      "date_note_old_style": "",
+      "region": "Влашко",
+      "importance": "",
+      "year_order": 0,
+      "status": "published",
+      "created_at": "2026-10-12T00:00:00Z",
+      "updated_at": "2026-10-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "quizzes.question",
+    "pk": 172,
+    "fields": {
+      "entry": 112,
+      "type": "multiple_choice",
+      "prompt": "Какъв вид книга е „Неделник“?",
+      "payload": {
+        "options": [
+          "Поучителна книга за неделите и празниците",
+          "Учебник по граматика",
+          "Вестник",
+          "Летопис"
+        ],
+        "correct": 0
+      },
+      "explanation": "„Неделник“ съдържа поучения за неделите и празниците.",
+      "created_at": "2026-10-12T00:00:00Z",
+      "updated_at": "2026-10-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "quizzes.question",
+    "pk": 173,
+    "fields": {
+      "entry": 112,
+      "type": "multiple_choice",
+      "prompt": "В кой период е издаден „Неделник“?",
+      "payload": {
+        "options": [
+          "Началото на XIX век",
+          "Средата на XVIII век",
+          "Средата на XIX век",
+          "Краят на XVIII век"
+        ],
+        "correct": 0
+      },
+      "explanation": "„Неделник“ е издаден през 1806 г., в началото на XIX век.",
+      "created_at": "2026-10-12T00:00:00Z",
+      "updated_at": "2026-10-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "quizzes.question",
+    "pk": 174,
+    "fields": {
+      "entry": 112,
+      "type": "true_false",
+      "prompt": "Софроний Врачански е издал „Неделник“ през 1762 г.",
+      "payload": {
+        "answer": false
+      },
+      "explanation": "„Неделник“ е издаден през 1806 г.",
+      "created_at": "2026-10-12T00:00:00Z",
+      "updated_at": "2026-10-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "quizzes.question",
+    "pk": 175,
+    "fields": {
+      "entry": 112,
+      "type": "date_ordering",
+      "prompt": "Подредете събитията хронологично.",
+      "payload": {
+        "items": [
+          "Написване на История Славянобългарска (1762)",
+          "Неделник (1806)",
+          "Букурещкият мирен договор (1812)"
+        ]
+      },
+      "explanation": "Историята (1762) предхожда „Неделник“ (1806), който е преди Букурещкия мир (1812).",
+      "created_at": "2026-10-12T00:00:00Z",
+      "updated_at": "2026-10-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "quizzes.question",
+    "pk": 176,
+    "fields": {
+      "entry": 112,
+      "type": "fill_blank",
+      "prompt": "Софроний Врачански е български ___ и просветител.",
+      "payload": {
+        "answers": [
+          "книжовник"
+        ]
+      },
+      "explanation": "Софроний Врачански е български книжовник.",
+      "created_at": "2026-10-12T00:00:00Z",
+      "updated_at": "2026-10-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "quizzes.question",
+    "pk": 177,
+    "fields": {
+      "entry": 112,
+      "type": "fill_blank",
+      "prompt": "„Неделник“ е издаден през ___.",
+      "payload": {
+        "answers": [
+          "1806",
+          "1806 г."
+        ]
+      },
+      "explanation": "Книгата е издадена през 1806 г.",
+      "created_at": "2026-10-12T00:00:00Z",
+      "updated_at": "2026-10-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "content.entry",
+    "pk": 113,
+    "fields": {
+      "type": "person",
+      "slug": "karadordzhe",
+      "title": "Карагеорги",
+      "summary": "Водач на Първото сръбско въстание от 1804 г.",
+      "body_md": "Карагеорги оглавява Първото сръбско въстание през 1804 г. Въстанието е една от първите организирани борби срещу османската власт на Балканите.\n\nУспехът му вдъхновява други балкански народи и показва, че национална борба е възможна.",
+      "event_date": null,
+      "date_certainty": "exact",
+      "date_note_old_style": "",
+      "region": "Сърбия",
+      "importance": "",
+      "year_order": 0,
+      "status": "published",
+      "created_at": "2026-10-12T00:00:00Z",
+      "updated_at": "2026-10-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "quizzes.question",
+    "pk": 178,
+    "fields": {
+      "entry": 113,
+      "type": "multiple_choice",
+      "prompt": "Кой е водач на Първото сръбско въстание?",
+      "payload": {
+        "options": [
+          "Карагеорги",
+          "Милош Обренович",
+          "Вук Караджич",
+          "Никола Пашич"
+        ],
+        "correct": 0
+      },
+      "explanation": "Въстанието е водено от Карагеорги.",
+      "created_at": "2026-10-12T00:00:00Z",
+      "updated_at": "2026-10-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "quizzes.question",
+    "pk": 179,
+    "fields": {
+      "entry": 113,
+      "type": "multiple_choice",
+      "prompt": "Кога се води Първото сръбско въстание?",
+      "payload": {
+        "options": [
+          "1804",
+          "1774",
+          "1812",
+          "1876"
+        ],
+        "correct": 0
+      },
+      "explanation": "Въстанието започва през 1804 г.",
+      "created_at": "2026-10-12T00:00:00Z",
+      "updated_at": "2026-10-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "quizzes.question",
+    "pk": 180,
+    "fields": {
+      "entry": 113,
+      "type": "true_false",
+      "prompt": "Карагеорги е водач на Първото сръбско въстание.",
+      "payload": {
+        "answer": true
+      },
+      "explanation": "Карагеорги оглавява въстанието през 1804 г.",
+      "created_at": "2026-10-12T00:00:00Z",
+      "updated_at": "2026-10-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "quizzes.question",
+    "pk": 181,
+    "fields": {
+      "entry": 113,
+      "type": "date_ordering",
+      "prompt": "Подредете събитията хронологично.",
+      "payload": {
+        "items": [
+          "Кючук-Кайнарджийският мир (1774)",
+          "Първото сръбско въстание (1804)",
+          "Априлското въстание (1876)"
+        ]
+      },
+      "explanation": "Мирът (1774) предхожда въстанието в Сърбия (1804) и Априлското въстание (1876).",
+      "created_at": "2026-10-12T00:00:00Z",
+      "updated_at": "2026-10-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "quizzes.question",
+    "pk": 182,
+    "fields": {
+      "entry": 113,
+      "type": "fill_blank",
+      "prompt": "Карагеорги води ___ въстание.",
+      "payload": {
+        "answers": [
+          "сръбското"
+        ]
+      },
+      "explanation": "Карагеорги води Първото сръбско въстание.",
+      "created_at": "2026-10-12T00:00:00Z",
+      "updated_at": "2026-10-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "quizzes.question",
+    "pk": 183,
+    "fields": {
+      "entry": 113,
+      "type": "fill_blank",
+      "prompt": "Карагеорги е водач на въстанието в ___.",
+      "payload": {
+        "answers": [
+          "Сърбия"
+        ]
+      },
+      "explanation": "Въстанието е в Сърбия.",
+      "created_at": "2026-10-12T00:00:00Z",
+      "updated_at": "2026-10-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "content.entry",
+    "pk": 114,
+    "fields": {
+      "type": "person",
+      "slug": "mihail-kutuzov",
+      "title": "Михаил Кутузов",
+      "summary": "Руски военачалник и дипломат, подписал Букурещкия мир (1812).",
+      "body_md": "Михаил Кутузов представя Русия при сключването на Букурещкия мир през 1812 г. Договорът слага край на руско-турската война от 1806–1812 г. и урежда границите между двете държави.\n\nЗа българските земи мирът е част от по-широката промяна в баланса на силите на Балканите.",
+      "event_date": null,
+      "date_certainty": "exact",
+      "date_note_old_style": "",
+      "region": "Букурещ",
+      "importance": "",
+      "year_order": 0,
+      "status": "published",
+      "created_at": "2026-10-12T00:00:00Z",
+      "updated_at": "2026-10-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "quizzes.question",
+    "pk": 184,
+    "fields": {
+      "entry": 114,
+      "type": "multiple_choice",
+      "prompt": "Кой руски военачалник подписва Букурещкия мир от руска страна?",
+      "payload": {
+        "options": [
+          "Михаил Кутузов",
+          "Александър Суворов",
+          "Григорий Потьомкин",
+          "Пьотър Багратион"
+        ],
+        "correct": 0
+      },
+      "explanation": "Кутузов представя Русия при сключването на мира.",
+      "created_at": "2026-10-12T00:00:00Z",
+      "updated_at": "2026-10-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "quizzes.question",
+    "pk": 185,
+    "fields": {
+      "entry": 114,
+      "type": "multiple_choice",
+      "prompt": "Кога е подписан Букурещкият мир?",
+      "payload": {
+        "options": [
+          "1812 г.",
+          "1774 г.",
+          "1806 г.",
+          "1878 г."
+        ],
+        "correct": 0
+      },
+      "explanation": "Договорът е подписан през 1812 г.",
+      "created_at": "2026-10-12T00:00:00Z",
+      "updated_at": "2026-10-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "quizzes.question",
+    "pk": 186,
+    "fields": {
+      "entry": 114,
+      "type": "true_false",
+      "prompt": "Михаил Кутузов е подписал Берлинския договор от името на Русия.",
+      "payload": {
+        "answer": false
+      },
+      "explanation": "Кутузов е свързан с Букурещкия мир (1812), а не с Берлинския договор (1878).",
+      "created_at": "2026-10-12T00:00:00Z",
+      "updated_at": "2026-10-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "quizzes.question",
+    "pk": 187,
+    "fields": {
+      "entry": 114,
+      "type": "date_ordering",
+      "prompt": "Подредете събитията хронологично.",
+      "payload": {
+        "items": [
+          "Неделник (1806)",
+          "Букурещкият мирен договор (1812)",
+          "Цариградски вестник (1848)"
+        ]
+      },
+      "explanation": "„Неделник“ (1806) предхожда Букурещкия мир (1812), който е преди „Цариградски вестник“ (1848).",
+      "created_at": "2026-10-12T00:00:00Z",
+      "updated_at": "2026-10-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "quizzes.question",
+    "pk": 188,
+    "fields": {
+      "entry": 114,
+      "type": "fill_blank",
+      "prompt": "Кутузов е руски ___.",
+      "payload": {
+        "answers": [
+          "военачалник",
+          "генерал"
+        ]
+      },
+      "explanation": "Кутузов е руски военачалник.",
+      "created_at": "2026-10-12T00:00:00Z",
+      "updated_at": "2026-10-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "quizzes.question",
+    "pk": 189,
+    "fields": {
+      "entry": 114,
+      "type": "fill_blank",
+      "prompt": "Букурещкият мир урежда присъединяването на Бесарабия към ___.",
+      "payload": {
+        "answers": [
+          "Русия"
+        ]
+      },
+      "explanation": "По договора Бесарабия преминава към Русия.",
+      "created_at": "2026-10-12T00:00:00Z",
+      "updated_at": "2026-10-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "content.entry",
+    "pk": 115,
+    "fields": {
+      "type": "person",
+      "slug": "aleksey-obreskov",
+      "title": "Алексей Обреской",
+      "summary": "Руски дипломат, участник в преговорите за Кючук-Кайнарджийския мир (1774).",
+      "body_md": "Алексей Обреской води руската страна в преговорите, които довеждат до Кючук-Кайнарджийския мир през 1774 г. Договорът дава на Русия право да се застъпва за православните поданици на султана.\n\nТова право по-късно става основание за руската намеса в балканските въпроси.",
+      "event_date": null,
+      "date_certainty": "exact",
+      "date_note_old_style": "",
+      "region": "Силистра",
+      "importance": "",
+      "year_order": 0,
+      "status": "published",
+      "created_at": "2026-10-12T00:00:00Z",
+      "updated_at": "2026-10-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "quizzes.question",
+    "pk": 190,
+    "fields": {
+      "entry": 115,
+      "type": "multiple_choice",
+      "prompt": "Кой руски дипломат води преговорите по Кючук-Кайнарджийския мир?",
+      "payload": {
+        "options": [
+          "Алексей Обреской",
+          "Михаил Кутузов",
+          "Александър Суворов",
+          "Григорий Потьомкин"
+        ],
+        "correct": 0
+      },
+      "explanation": "Обреской е руски дипломат, участник в преговорите през 1774 г.",
+      "created_at": "2026-10-12T00:00:00Z",
+      "updated_at": "2026-10-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "quizzes.question",
+    "pk": 191,
+    "fields": {
+      "entry": 115,
+      "type": "multiple_choice",
+      "prompt": "В коя година е подписан Кючук-Кайнарджийският мир?",
+      "payload": {
+        "options": [
+          "1774",
+          "1812",
+          "1829",
+          "1878"
+        ],
+        "correct": 0
+      },
+      "explanation": "Мирът е подписан през 1774 г.",
+      "created_at": "2026-10-12T00:00:00Z",
+      "updated_at": "2026-10-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "quizzes.question",
+    "pk": 192,
+    "fields": {
+      "entry": 115,
+      "type": "true_false",
+      "prompt": "Алексей Обреской е български книжовник.",
+      "payload": {
+        "answer": false
+      },
+      "explanation": "Обреской е руски дипломат.",
+      "created_at": "2026-10-12T00:00:00Z",
+      "updated_at": "2026-10-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "quizzes.question",
+    "pk": 193,
+    "fields": {
+      "entry": 115,
+      "type": "date_ordering",
+      "prompt": "Подредете събитията хронологично.",
+      "payload": {
+        "items": [
+          "Кючук-Кайнарджийският мир (1774)",
+          "Първото сръбско въстание (1804)",
+          "Букурещкият мирен договор (1812)"
+        ]
+      },
+      "explanation": "Мирът (1774) предхожда въстанието в Сърбия (1804) и Букурещкия мир (1812).",
+      "created_at": "2026-10-12T00:00:00Z",
+      "updated_at": "2026-10-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "quizzes.question",
+    "pk": 194,
+    "fields": {
+      "entry": 115,
+      "type": "fill_blank",
+      "prompt": "Алексей Обреской е дипломат на ___ империя.",
+      "payload": {
+        "answers": [
+          "Руската"
+        ]
+      },
+      "explanation": "Обреской е дипломат на Руската империя.",
+      "created_at": "2026-10-12T00:00:00Z",
+      "updated_at": "2026-10-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "quizzes.question",
+    "pk": 195,
+    "fields": {
+      "entry": 115,
+      "type": "fill_blank",
+      "prompt": "Кючук-Кайнарджийският мир е подписан през ___.",
+      "payload": {
+        "answers": [
+          "юли"
+        ]
+      },
+      "explanation": "Мирът е подписан през юли 1774 г.",
+      "created_at": "2026-10-12T00:00:00Z",
+      "updated_at": "2026-10-12T00:00:00Z"
+    }
+  },
+  {
+    "model": "content.entryrelation",
+    "pk": 103,
+    "fields": {
+      "from_entry": 111,
+      "to_entry": 1
+    }
+  },
+  {
+    "model": "content.entryrelation",
+    "pk": 104,
+    "fields": {
+      "from_entry": 1,
+      "to_entry": 111
+    }
+  },
+  {
+    "model": "content.entryrelation",
+    "pk": 105,
+    "fields": {
+      "from_entry": 112,
+      "to_entry": 109
+    }
+  },
+  {
+    "model": "content.entryrelation",
+    "pk": 106,
+    "fields": {
+      "from_entry": 109,
+      "to_entry": 112
+    }
+  },
+  {
+    "model": "content.entryrelation",
+    "pk": 107,
+    "fields": {
+      "from_entry": 113,
+      "to_entry": 108
+    }
+  },
+  {
+    "model": "content.entryrelation",
+    "pk": 108,
+    "fields": {
+      "from_entry": 108,
+      "to_entry": 113
+    }
+  },
+  {
+    "model": "content.entryrelation",
+    "pk": 109,
+    "fields": {
+      "from_entry": 114,
+      "to_entry": 110
+    }
+  },
+  {
+    "model": "content.entryrelation",
+    "pk": 110,
+    "fields": {
+      "from_entry": 110,
+      "to_entry": 114
+    }
+  },
+  {
+    "model": "content.entryrelation",
+    "pk": 111,
+    "fields": {
+      "from_entry": 115,
+      "to_entry": 107
+    }
+  },
+  {
+    "model": "content.entryrelation",
+    "pk": 112,
+    "fields": {
+      "from_entry": 107,
+      "to_entry": 115
+    }
   }
 ]

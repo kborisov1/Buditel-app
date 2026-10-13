@@ -27,7 +27,7 @@ def _login(client: Client, token: str, **overrides: object) -> object:
 
 
 def test_profile_created_with_user(user: User) -> None:
-    assert user.profile.time_zone == "UTC"  # type: ignore[attr-defined]
+    assert user.profile.time_zone == "UTC"
 
 
 def test_login_requires_csrf(user: User) -> None:
@@ -75,23 +75,23 @@ def test_time_zone_captured_on_first_login_only(user: User) -> None:
     client = _client()
     token = _with_csrf(client)
     _login(client, token, time_zone="Europe/Sofia")
-    user.profile.refresh_from_db()  # type: ignore[attr-defined]
-    assert user.profile.time_zone == "Europe/Sofia"  # type: ignore[attr-defined]
+    user.profile.refresh_from_db()
+    assert user.profile.time_zone == "Europe/Sofia"
 
     token = client.cookies["csrftoken"].value
     client.post("/api/auth/logout", headers={"X-CSRFToken": token})
     token = _with_csrf(client)
     _login(client, token, time_zone="Asia/Tokyo")
-    user.profile.refresh_from_db()  # type: ignore[attr-defined]
-    assert user.profile.time_zone == "Europe/Sofia"  # type: ignore[attr-defined]
+    user.profile.refresh_from_db()
+    assert user.profile.time_zone == "Europe/Sofia"
 
 
 def test_invalid_time_zone_ignored(user: User) -> None:
     client = _client()
     token = _with_csrf(client)
     _login(client, token, time_zone="Not/AZone")
-    user.profile.refresh_from_db()  # type: ignore[attr-defined]
-    assert user.profile.time_zone == "UTC"  # type: ignore[attr-defined]
+    user.profile.refresh_from_db()
+    assert user.profile.time_zone == "UTC"
 
 
 def test_login_accepts_vite_dev_origin(user: User) -> None:

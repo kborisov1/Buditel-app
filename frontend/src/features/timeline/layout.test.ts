@@ -4,6 +4,7 @@ import {
   assignLanes,
   gridTicks,
   pickGridStep,
+  popupPosition,
   toYear,
   viewTransform,
   visibleFractions,
@@ -60,4 +61,10 @@ test("viewTransform and visibleFractions round-trip and clamp to the period", ()
   expect(1750 + b * 140).toBeCloseTo(1840);
   const edge = viewTransform([1750, 1890], 1000, 1880, 1920);
   expect(visibleFractions(edge.k, edge.x, 1000)[1]).toBeCloseTo(1);
+});
+
+test("a popup is centered on its dot but stays inside the chart", () => {
+  expect(popupPosition(500, 1000, 288)).toEqual({ left: 356, arrow: 144 });
+  expect(popupPosition(10, 1000, 288)).toEqual({ left: 4, arrow: 6 });
+  expect(popupPosition(990, 1000, 288)).toEqual({ left: 708, arrow: 282 });
 });

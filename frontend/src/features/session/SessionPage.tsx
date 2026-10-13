@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { api, type SessionStep } from "../../api/client";
 import QueryStatus from "../../components/Status";
 
@@ -13,13 +13,22 @@ export function stepTarget(step: SessionStep): string | null {
 
 export default function SessionPage() {
   const { t } = useTranslation();
-  const session = useQuery({ queryKey: ["session"], queryFn: api.session });
+  const track = Number(useSearchParams()[0].get("track")) || undefined;
+  const session = useQuery({ queryKey: ["session", track], queryFn: () => api.session(track) });
   const steps = session.data?.steps ?? [];
 
   return (
     <section>
       <h1 className="mb-1 font-serif text-3xl">{t("session.title")}</h1>
       <p className="mb-4 text-sm">{t("session.hint")}</p>
+      {track && (
+        <p className="mb-4 text-sm">
+          {t("session.trackOnly")}{" "}
+          <Link to="/session" className="underline">
+            {t("session.allTracks")}
+          </Link>
+        </p>
+      )}
       <QueryStatus query={session} />
       {session.data && steps.length === 0 && <p>{t("session.empty")}</p>}
       <ol className="flex flex-col gap-2">

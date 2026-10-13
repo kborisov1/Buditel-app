@@ -2,9 +2,14 @@ import { expect, test } from "vitest";
 import {
   assignLabelRows,
   assignLanes,
+  focusSpan,
   gridTicks,
+  laneHeight,
+  AXIS_H,
+  MIN_LANE_H,
   pickGridStep,
   popupPosition,
+  popupSide,
   toYear,
   viewTransform,
   visibleFractions,
@@ -67,4 +72,21 @@ test("a popup is centered on its dot but stays inside the chart", () => {
   expect(popupPosition(500, 1000, 288)).toEqual({ left: 356, arrow: 144 });
   expect(popupPosition(10, 1000, 288)).toEqual({ left: 4, arrow: 6 });
   expect(popupPosition(990, 1000, 288)).toEqual({ left: 708, arrow: 282 });
+});
+
+test("lanes share the chart height but stay readable", () => {
+  expect(laneHeight(500 + AXIS_H, 5)).toBe(100);
+  expect(laneHeight(200, 5)).toBe(MIN_LANE_H);
+  expect(laneHeight(300, 0)).toBe(300 - AXIS_H);
+});
+
+test("focus zooms to the phase band, else to the lane's events", () => {
+  expect(focusSpan({ start: 1840, end: 1870 }, [1767, 1845])).toEqual([1838, 1872]);
+  expect(focusSpan(null, [1850, 1835, 1860])).toEqual([1833, 1862]);
+  expect(focusSpan(null, [])).toBeNull();
+});
+
+test("a pop-up flips below the dot when there is no room above", () => {
+  expect(popupSide(300)).toBe("above");
+  expect(popupSide(60)).toBe("below");
 });

@@ -90,3 +90,28 @@ export function popupPosition(dotX: number, chartWidth: number, popupWidth: numb
   const left = Math.max(margin, Math.min(dotX - popupWidth / 2, chartWidth - popupWidth - margin));
   return { left, arrow: dotX - left };
 }
+
+export const MIN_LANE_H = 72;
+export const AXIS_H = 22;
+
+/** Height of one track lane: the chart height shared out evenly, but never below a readable minimum. */
+export function laneHeight(chartHeight: number, laneCount: number): number {
+  return Math.max(MIN_LANE_H, Math.floor((chartHeight - AXIS_H) / Math.max(1, laneCount)));
+}
+
+/** The year span to zoom to when a lane is focused (scope 7.2): the lane's phase band if it has
+ * one, otherwise its events, widened a little so the edge dots are not cut off. */
+export function focusSpan(
+  phase: { start: number; end: number } | null,
+  eventYears: number[],
+  pad = 2,
+): [number, number] | null {
+  if (phase) return [phase.start - pad, phase.end + pad];
+  if (eventYears.length === 0) return null;
+  return [Math.min(...eventYears) - pad, Math.max(...eventYears) + pad];
+}
+
+/** A pop-up sits above its dot unless there is too little room, then below it. */
+export function popupSide(dotY: number, needed = 200): "above" | "below" {
+  return dotY >= needed ? "above" : "below";
+}

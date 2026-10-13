@@ -10,10 +10,12 @@ import {
   phaseColor,
   pickGridStep,
   toYear,
+  popupPosition,
   viewTransform,
   visibleFractions,
   titledImportance,
 } from "./layout";
+import EventPopup, { POPUP_WIDTH } from "./EventPopup";
 import TimelineScrubber from "./TimelineScrubber";
 
 const LANE_H = 46;
@@ -25,7 +27,7 @@ const PAD_YEARS = 8; // room so labels at the period edges are not clipped
 interface Props {
   timeline: Timeline;
   selected: string | null;
-  onSelect: (slug: string) => void;
+  onSelect: (slug: string | null) => void;
 }
 
 /** Fills its parent. D3 supplies the scales and zoom; React renders the SVG (architecture 8). */
@@ -121,6 +123,10 @@ export default function TimelineChart({ timeline, selected, onSelect }: Props) {
   );
   const rows = events.map((e) => (e.titled ? titledRows[titledEvents.indexOf(e)] : -1));
 
+  // The popup follows its dot while zooming and hides once the dot leaves the view.
+  const popup = events.find(({ event, px }) => event.slug === selected && px >= 0 && px <= w);
+  const popupWidth = Math.min(POPUP_WIDTH, w - 8);
+
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="mb-2 flex gap-2">
@@ -132,7 +138,7 @@ export default function TimelineChart({ timeline, selected, onSelect }: Props) {
         </button>
         <span className="self-center text-sm">{t("timeline.zoomHint")}</span>
       </div>
-      <div ref={areaRef} className="min-h-0 max-h-[640px] flex-1 overflow-hidden rounded border border-cappuccino bg-white/30">
+      <div ref={areaRef} className="relative min-h-0 max-h-[640px] flex-1 overflow-hidden rounded border border-cappuccino bg-white/30">
         <svg
           ref={svgRef}
           width={w}
@@ -140,6 +146,7 @@ export default function TimelineChart({ timeline, selected, onSelect }: Props) {
           className="block touch-none select-none"
           role="group"
           aria-label={t("timeline.title")}
+          onClick={() => onSelect(null)}
         >
           {w > 0 && (
             <>
@@ -192,7 +199,10 @@ export default function TimelineChart({ timeline, selected, onSelect }: Props) {
                     aria-label={event.title}
                     aria-pressed={active}
                     className="cursor-pointer outline-none focus-visible:[&>circle]:stroke-[3]"
-                    onClick={() => onSelect(event.slug)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelect(event.slug);
+                    }}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" || e.key === " ") {
                         e.preventDefault();
@@ -229,6 +239,24 @@ export default function TimelineChart({ timeline, selected, onSelect }: Props) {
             </>
           )}
         </svg>
+        {popup && popupWidth > 0 && (
+          <div
+            className="absolute z-10 overflow-y-auto rounded border border-cappuccino bg-parchment p-3 shadow-lg"
+            style={{
+              left: popupPosition(popup.px, w, popupWidth).left,
+              bottom: h - axisY + 16,
+              width: popupWidth,
+              maxHeight: axisY - 24,
+            }}
+          >
+            <EventPopup event={popup.event} onClose={() => onSelect(null)} />
+            <span
+              aria-hidden
+              className="absolute -bottom-[7px] h-3 w-3 rotate-45 border-b border-r border-cappuccino bg-parchment"
+              style={{ left: popupPosition(popup.px, w, popupWidth).arrow - 6 }}
+            />
+          </div>
+        )}
       </div>
       <TimelineScrubber
         full={full}

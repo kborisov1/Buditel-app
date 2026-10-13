@@ -84,3 +84,9 @@ export function visibleFractions(k: number, x: number, width: number): [number, 
 /** One stable color per phase, so a phase looks the same on the timeline and the scrubber. */
 export const PHASE_COLORS = ["#a0522d", "#6b705c", "#7a4a6d", "#9b2c2c", "#2f5d62"];
 export const phaseColor = (index: number): string => PHASE_COLORS[index % PHASE_COLORS.length];
+
+/** Left edge of a popup centered on a dot but kept inside the chart, plus where its arrow points. */
+export function popupPosition(dotX: number, chartWidth: number, popupWidth: number, margin = 4) {
+  const left = Math.max(margin, Math.min(dotX - popupWidth / 2, chartWidth - popupWidth - margin));
+  return { left, arrow: dotX - left };
+}

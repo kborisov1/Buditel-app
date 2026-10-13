@@ -209,7 +209,7 @@ Primary action: one **"Start today's session"** button that builds a queue: due 
 - Events have 3 importance levels (**major, notable, minor**), set by the author. Every event always shows as a dot. Major events also show their title at every zoom level; notable and minor events get their title once the user zooms in (notable first, then minor).
 - Colored phase bands (see 3.1), which may overlap.
 - Locked events appear with title and date only.
-- **Clicking an event opens a side panel** that keeps the timeline visible. Panel contents: title, dates, places, people, short summary, and a big button to open the detailed entry page, plus a button to take the quiz (the quiz button becomes available only once "Finished reading" has been clicked on that entry). Locked events show only title and date in the panel.
+- **Clicking an event dot opens a pop-up** anchored to that dot, so the timeline stays visible. Pop-up contents: title, dates, short summary, and a button to open the detailed entry page, plus a button to take the quiz (the quiz button becomes available only once "Finished reading" has been clicked on that entry). Locked events show only title and date in the pop-up. The pop-up closes with its close button or by clicking empty space on the timeline; clicking another dot moves it to that event. While the user zooms or pans, it stays attached to its dot and hides when the dot leaves the view.
 
 ### 7.3 Library
 - Lists of people, events, places, institutions, works, and concepts.
@@ -274,7 +274,7 @@ Primary action: one **"Start today's session"** button that builds a queue: due 
 **In v1:**
 - Accounts (email and password), admin-managed, group access
 - Admin panel with Markdown editor, entries of all six types, questions, tracks, gates, test tools, searchable logs
-- Zoomable timeline with importance levels and phase bands, side panel
+- Zoomable timeline with importance levels and phase bands, event pop-up
 - Library lists with filters and search
 - Entry pages with links, images, sources, related sidebar
 - Read tracking with mandatory post-reading quiz (80% pass, random draw up to 5)

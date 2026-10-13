@@ -30,7 +30,7 @@ def _user_out(user: User) -> UserOut:
     return UserOut(
         id=user.pk,
         email=user.email,
-        time_zone=user.profile.time_zone,  # type: ignore[attr-defined]
+        time_zone=user.profile.time_zone,
         is_admin=user.is_superuser,
     )
 
@@ -63,8 +63,8 @@ def login_view(request: HttpRequest, payload: LoginIn) -> UserOut:
     login(request, user)
     log_event("user", "login", user)
     if first_login and payload.time_zone and is_valid_time_zone(payload.time_zone):
-        user.profile.time_zone = payload.time_zone  # type: ignore[attr-defined]
-        user.profile.save(update_fields=["time_zone"])  # type: ignore[attr-defined]
+        user.profile.time_zone = payload.time_zone
+        user.profile.save(update_fields=["time_zone"])
     return _user_out(user)
 
 

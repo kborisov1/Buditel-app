@@ -99,9 +99,10 @@ class SessionOut(Schema):
 
 
 @router.get("/session", response=SessionOut)
-def session(request: HttpRequest) -> SessionOut:
+def session(request: HttpRequest, track: int | None = None) -> SessionOut:
+    """The daily queue; `track` limits the entries to one track (timeline focus mode)."""
     steps: list[ReviewStepOut | CheckStepOut | EntryStepOut] = []
-    for step in build_session(_user(request)):
+    for step in build_session(_user(request), track):
         if step.kind == "review":
             steps.append(ReviewStepOut(count=step.count))
         elif step.kind == "check":

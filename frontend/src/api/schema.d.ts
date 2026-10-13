@@ -354,7 +354,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Session */
+        /**
+         * Session
+         * @description The daily queue; `track` limits the entries to one track (timeline focus mode).
+         */
         get: operations["apps_progress_api_session"];
         put?: never;
         post?: never;
@@ -608,6 +611,8 @@ export interface components {
             date_certainty: string;
             /** Importance */
             importance: string;
+            /** Track Ids */
+            track_ids: number[];
         };
         /** PhaseOut */
         PhaseOut: {
@@ -649,6 +654,8 @@ export interface components {
             date_certainty: string;
             /** Importance */
             importance: string;
+            /** Track Ids */
+            track_ids: number[];
             /** Summary */
             summary: string;
             /** Region */
@@ -670,8 +677,26 @@ export interface components {
             end: string;
             /** Phases */
             phases: components["schemas"]["PhaseOut"][];
+            /** Tracks */
+            tracks: components["schemas"]["TimelineTrackOut"][];
             /** Events */
             events: (components["schemas"]["TimelineEventOut"] | components["schemas"]["LockedTimelineEventOut"])[];
+        };
+        /**
+         * TimelineTrackOut
+         * @description A timeline lane (scope 7.2): `open` says whether the learner can start the track.
+         */
+        TimelineTrackOut: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Kind */
+            kind: string;
+            /** Phase Id */
+            phase_id: number | null;
+            /** Open */
+            open: boolean;
         };
         /** QuestionOut */
         QuestionOut: {
@@ -1470,7 +1495,9 @@ export interface operations {
     };
     apps_progress_api_session: {
         parameters: {
-            query?: never;
+            query?: {
+                track?: number | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;

@@ -93,7 +93,8 @@ export const api = {
   timeline: () => request<Timeline>("/timeline"),
   dashboard: () => request<Dashboard>("/dashboard"),
   profile: () => request<Profile>("/profile"),
-  session: () => request<Session>("/session"),
+  session: (track?: number) =>
+    request<Session>(track ? `/session?track=${track}` : "/session"),
   review: () => request<Schemas["ReviewQueueOut"]>("/review"),
   answerReview: (question_id: number, answer: QuizAnswer) =>
     request<ReviewResult>("/review/answer", {

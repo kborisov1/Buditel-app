@@ -233,3 +233,24 @@ def test_session_skips_locked_entries(client: Client, user: User) -> None:
 
 def test_empty_session(client: Client) -> None:
     assert client.get("/api/session").json() == {"steps": []}
+
+
+def test_session_can_be_limited_to_one_track(client: Client, user: User) -> None:
+    education = Track.objects.get(name="Просвета и култура")
+    church = Track.objects.get(name="Църковна борба")
+    school = _entry("school", on=date(1835, 1, 1))
+    council = _entry("council", on=date(1840, 1, 1))
+    person = _entry("exarch", Entry.Type.PERSON)
+    TrackEntry.objects.create(track=education, entry=school)
+    TrackEntry.objects.create(track=church, entry=council)
+    EntryRelation.objects.create(from_entry=person, to_entry=council)
+
+    # Church (1840) opens once the Education event dated before it (1835) is read.
+    assert [s["slug"] for s in client.get("/api/session").json()["steps"]] == ["school"]
+    _read(user, school)
+    everything = [s["slug"] for s in client.get("/api/session").json()["steps"]]
+    assert set(everything) == {"council"}
+    only_education = client.get(f"/api/session?track={education.pk}").json()["steps"]
+    assert only_education == []  # school is read and Education has nothing else
+    only_church = client.get(f"/api/session?track={church.pk}").json()["steps"]
+    assert [s["slug"] for s in only_church] == ["council"]

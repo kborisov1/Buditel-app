@@ -10,13 +10,19 @@ from ninja import Router, Schema
 from ninja.errors import HttpError
 
 from apps.progress.reading import EntryLocked, finish_reading, progress_states
-from apps.progress.unlock import unlocked_entry_ids
+from apps.progress.unlock import (
+    load_graph,
+    open_track_ids,
+    read_entry_ids,
+    unlocked_entry_ids,
+    unlocked_ids,
+)
 
 from .library import body_link_slugs, filter_entries, published_entries
 from .models import Entry, Phase
 from .rules import PERIOD_END, PERIOD_START
 from .search import search_titles
-from .timeline import phases, timeline_events
+from .timeline import phases, timeline_events, timeline_tracks, track_ids_by_event
 
 router = Router(tags=["entries"])
 
@@ -227,6 +233,7 @@ class LockedTimelineEventOut(Schema):
     event_date: date
     date_certainty: str
     importance: str
+    track_ids: list[int]
 
 
 class TimelineEventOut(Schema):
@@ -237,6 +244,7 @@ class TimelineEventOut(Schema):
     event_date: date
     date_certainty: str
     importance: str
+    track_ids: list[int]
     summary: str
     region: str
     progress: str | None
@@ -249,18 +257,32 @@ class PhaseOut(Schema):
     end_date: date
 
 
+class TimelineTrackOut(Schema):
+    """A timeline lane (scope 7.2): `open` says whether the learner can start the track."""
+
+    id: int
+    name: str
+    kind: str
+    phase_id: int | None
+    open: bool
+
+
 class TimelineOut(Schema):
     start: date
     end: date
     phases: list[PhaseOut]
+    tracks: list[TimelineTrackOut]
     events: list[TimelineEventOut | LockedTimelineEventOut]
 
 
 @router.get("/timeline", response=TimelineOut, tags=["timeline"])
 def timeline(request: HttpRequest) -> TimelineOut:
     user = _user(request)
-    unlocked = unlocked_entry_ids(user)
+    graph, read = load_graph(), read_entry_ids(user)
+    unlocked = unlocked_ids(graph, read)
+    opened = open_track_ids(graph, read)
     states = progress_states(user)
+    track_ids = track_ids_by_event()
     events: list[TimelineEventOut | LockedTimelineEventOut] = []
     for e in timeline_events():
         if e.event_date is None:  # events always have a date (scope 2.3)
@@ -272,6 +294,7 @@ def timeline(request: HttpRequest) -> TimelineOut:
             event_date=e.event_date,
             date_certainty=e.date_certainty,
             importance=e.importance,
+            track_ids=track_ids.get(e.pk, []),
         )
         if e.pk not in unlocked:
             events.append(locked)
@@ -290,6 +313,12 @@ def timeline(request: HttpRequest) -> TimelineOut:
         phases=[
             PhaseOut(id=p.pk, name=p.name, start_date=p.start_date, end_date=p.end_date)
             for p in phases()
+        ],
+        tracks=[
+            TimelineTrackOut(
+                id=t.pk, name=t.name, kind=t.kind, phase_id=t.phase_id, open=t.pk in opened
+            )
+            for t in timeline_tracks()
         ],
         events=events,
     )

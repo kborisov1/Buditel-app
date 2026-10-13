@@ -82,7 +82,7 @@ Business rules live in plain service modules inside each app (for example `progr
 
 - `auth`: login, logout, current user
 - `dashboard`: one aggregate call (goal, streak, due reviews, continue-reading, level)
-- `timeline`: events with date, certainty, importance, phase, lock state
+- `timeline`: events with date, certainty, importance, track IDs, lock state; the tracks (lanes) with their phase and whether the user may start them
 - `entries`: list with filters, detail, "finished reading"
 - `quiz`: start attempt, submit attempt
 - `review`: today's queue, answer
@@ -102,7 +102,7 @@ Business rules live in plain service modules inside each app (for example `progr
 - `Source`: citations per entry.
 - `Image`: file (validated with Pillow, width and height recorded), position (unique per entry), caption, credit, license note. Images form an ordered gallery, and the first one is the main image. The body can also place an image inline with `![[position]]`.
 - `Phase`: name, start and end dates (timeline bands, may overlap). An event's phase is derived from its date, not stored.
-- `Track`: name, kind (`regular`, `opening`, `finale`; at most one opening and one finale), position. `TrackEntry`: track, event (unique per track). There is no stored position: events in a track are ordered like the timeline (year, `year_order`, date, title, then ID), through `content.models.chronological()`. An event can appear in several tracks. Only events can be in tracks or gates; an entry in a track or gate cannot change its type.
+- `Track`: name, kind (`regular`, `opening`, `finale`; at most one opening and one finale), position, optional `phase` (the band drawn behind its timeline lane). `TrackEntry`: track, event (unique per track). There is no stored position: events in a track are ordered like the timeline (year, `year_order`, date, title, then ID), through `content.models.chronological()`. An event can appear in several tracks. Only events can be in tracks or gates; an entry in a track or gate cannot change its type.
 - `GateRequirement`: event, required event. An event with one or more requirements is a gate event: it unlocks only after all of them are read and passed. A separate `Gate` table is not needed.
 - `Question`: entry FK, type (`multiple_choice`, `true_false`, `date_ordering`, `fill_blank`), prompt, `payload` JSONB, explanation. Payload shape depends on type and is validated with Pydantic models on save:
   - `multiple_choice`: `{"options": [2-6 unique strings], "correct": index}`, exactly one correct option.
@@ -136,7 +136,7 @@ All rules run on the server. The client only displays results.
 
 - An **event** is unlocked when, for every track it belongs to, the previous event in that track is `read`, and all its gate requirements are `read`. For multi-track events, all tracks must allow it.
 - An event in the **opening** track follows the opening track's order only. Every other track skips it when working out "the previous event", because those tracks open only after all opening events are read. Otherwise an opening event that also sits in another track would wait for the opening track to finish, which waits for that event: a deadlock.
-- The first event of every non-opening track additionally requires all events of the **opening** track (Awakening) to be `read`.
+- The first event of every regular track additionally requires all events of the **opening** track (Awakening) to be `read`, and every event of the other regular tracks dated before the track's first event (`TrackOrder.before_start`, filled by `load_graph` from the combined timeline order, so ties break the same way as in a track). Events of the opening and finale tracks and the track's own events are not counted. A track cannot wait for itself: any event dated before this track's first event belongs to a track that started earlier. `open_track_ids` reports which tracks the user may start, for the timeline lanes.
 - A **non-event entry** is unlocked once any linked event is `read`.
 - The **Finale** track's first event unlocks when, in every other track, the user has read at least `ceil(pct * event_count)` events, where `pct` comes from `AppSetting` (default 80%).
 - An event in no track has no order constraint: it unlocks once its gate requirements are read, or immediately if it has none. The unlock graph view should flag such events.
@@ -165,7 +165,7 @@ The `Profile` completed-entries counter increments on each first pass. When it r
 
 ### 6.4.1 Daily session (scope 7.1)
 
-`GET /api/session` (`progress/session.py`) returns ordered steps: a review step with the due count, the open check if any, then up to 3 next entries, with a planned check (no ID yet) after the entry that will reach the next milestone. The client works through the steps and refetches; the server recomputes the queue each time, so nothing about the session is stored.
+`GET /api/session` (`progress/session.py`) returns ordered steps: a review step with the due count, the open check if any, then up to 3 next entries, with a planned check (no ID yet) after the entry that will reach the next milestone. The client works through the steps and refetches; the server recomputes the queue each time, so nothing about the session is stored. `?track=<id>` limits the entries to that track's events and the entries linked to them (`track_entry_ids`); reviews and checks are unaffected.
 
 ### 6.5 XP, levels, daily goal (scope 6)
 
@@ -207,7 +207,7 @@ The time zone is stored per user, with a default of the browser's zone captured 
 
 **API types.** The backend publishes an OpenAPI schema. `openapi-typescript` generates types into `frontend/src/api/` (`make types`). A CI or pre-commit check fails if generated types are stale.
 
-**Timeline.** `GET /api/timeline` returns the period (1762-1878), the phase bands and every published event in order (year, then `year_order`, then date; this is also the default entry order), locked or unlocked. D3 provides scales and zoom behavior only. React renders the SVG. Semantic zoom works as follows: the visible year range determines a minimum importance level, so zooming in reveals notable and minor events. Phase bands are rectangles on a separate layer and may overlap. The timeline fills the page, with dashed year gridlines whose step adapts to the zoom (1, 5, 10, 20 or 50 years). A scrubber below it shows the whole period: dragging its window pans the timeline, dragging its edges zooms. Locked events render with title and date only. A click on a dot opens a pop-up anchored above it, placed by `popupPosition` so it stays inside the chart; it is rendered inside the chart area so it follows the dot while zooming. The pop-up's quiz button is enabled only when the entry's progress is `in_progress` or later.
+**Timeline.** `GET /api/timeline` returns the period (1762-1878), the phase bands and every published event in order (year, then `year_order`, then date; this is also the default entry order), locked or unlocked. D3 provides scales and zoom behavior only. React renders the SVG. Semantic zoom works as follows: the visible year range determines a minimum importance level, so zooming in reveals notable and minor events. There is one lane per track (the tracks that have a published event, in display order, plus a lane for events in no track), each with its phase band behind it; lane height comes from `laneHeight`, and the chart scrolls vertically when the lanes would be too small. Focus mode (`focusSpan`) lives in `TimelinePage` state and drives both the faded lanes and the zoom; leaving it restores the full period. The timeline fills the page, with dashed year gridlines whose step adapts to the zoom (1, 5, 10, 20 or 50 years). A scrubber below it shows the whole period: dragging its window pans the timeline, dragging its edges zooms. Locked events render with title and date only. A click on a dot opens a pop-up anchored above it (below it when there is no room, `popupSide`), placed by `popupPosition` so it stays inside the chart; it is rendered inside the chart area so it follows the dot while zooming. The pop-up's quiz button is enabled only when the entry's progress is `in_progress` or later.
 
 **Typography and theme.** Self-hosted fonts with full Cyrillic coverage: a serif for body text Source Serif 4 and a clean sans for UI. Theme tokens (parchment, cappuccino, mocha) are CSS variables defined once, so retuning colors is a single-file change. No animations or sounds in v1.
 

@@ -8,7 +8,7 @@ links and the finale count.
 
 from collections import defaultdict
 from collections.abc import Mapping
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
 from django.contrib.auth.models import User
 
@@ -30,6 +30,9 @@ class TrackOrder:
     kind: str
     events: tuple[int, ...]
     track_id: int = field(default=0, compare=False)
+    # Events of other regular tracks dated before this track's first event: reading them is
+    # what opens a regular track (scope 3.2). Empty for the opening and finale tracks.
+    before_start: frozenset[int] = frozenset()
 
 
 @dataclass(frozen=True)
@@ -51,27 +54,36 @@ class UnlockGraph:
         return tuple(e for e in track.events if e not in opening)
 
 
+def _track_opens(graph: UnlockGraph, track: TrackOrder, read: set[int]) -> bool:
+    """Whether the first event of `track` may be read (scope 3.2): the opening track is always
+    open; the finale needs its threshold; a regular track needs the whole opening track and
+    every earlier-dated event of the other regular tracks."""
+    if track.kind == Track.Kind.OPENING:
+        return True
+    opening_done = all(set(t.events) <= read for t in graph.tracks if t.kind == Track.Kind.OPENING)
+    if track.kind == Track.Kind.FINALE:
+        finale_reached = all(
+            _read_count(t, read) >= _threshold(len(t.events), graph.finale_percentage)
+            for t in graph.tracks
+            if t.kind != Track.Kind.FINALE
+        )
+        return opening_done and finale_reached
+    return opening_done and track.before_start <= read
+
+
+def open_track_ids(graph: UnlockGraph, read: set[int]) -> set[int]:
+    """IDs of the tracks the user may start reading; tracks with no events count as open."""
+    return {t.track_id for t in graph.tracks if _track_opens(graph, t, read)}
+
+
 def unlocked_ids(graph: UnlockGraph, read: set[int]) -> set[int]:
     """IDs of entries the user may open, given the IDs of entries they have read."""
-    opening_done = all(set(t.events) <= read for t in graph.tracks if t.kind == Track.Kind.OPENING)
-    finale_reached = all(
-        _read_count(t, read) >= _threshold(len(t.events), graph.finale_percentage)
-        for t in graph.tracks
-        if t.kind != Track.Kind.FINALE
-    )
-
     blocked: set[int] = set()
     for track in graph.tracks:
         order = graph.unlock_order(track)
+        opens = _track_opens(graph, track, read)
         for i, event in enumerate(order):
-            if i > 0:
-                allowed = order[i - 1] in read
-            elif track.kind == Track.Kind.OPENING:
-                allowed = True
-            elif track.kind == Track.Kind.FINALE:
-                allowed = opening_done and finale_reached
-            else:
-                allowed = opening_done
+            allowed = order[i - 1] in read if i > 0 else opens
             if not allowed:
                 blocked.add(event)
 
@@ -108,7 +120,9 @@ def load_graph() -> UnlockGraph:
     for track_id, kind, entry_id in rows:
         kinds[track_id] = kind
         track_events[track_id].append(entry_id)
-    tracks = tuple(TrackOrder(kinds[t], tuple(ids), t) for t, ids in track_events.items())
+    tracks = _with_before_start(
+        tuple(TrackOrder(kinds[t], tuple(ids), t) for t, ids in track_events.items())
+    )
 
     gates: dict[int, set[int]] = defaultdict(set)
     gate_rows = GateRequirement.objects.filter(
@@ -132,6 +146,41 @@ def load_graph() -> UnlockGraph:
         links={k: frozenset(v) for k, v in links.items()},
         finale_percentage=get_setting("finale_percentage"),
     )
+
+
+def _with_before_start(tracks: tuple[TrackOrder, ...]) -> tuple[TrackOrder, ...]:
+    """Fills `before_start` for regular tracks. Each track's events are already in timeline
+    order and every event's rank is its place in the combined order, so "dated before" uses the
+    same order as the tracks themselves (scope 2.3)."""
+    ids = [e for t in tracks for e in t.events]
+    rank = {e: r for r, e in enumerate(_chronological_ids(ids))}
+    opening = {e for t in tracks if t.kind == Track.Kind.OPENING for e in t.events}
+    result = []
+    for track in tracks:
+        own_order = [e for e in track.events if e not in opening]
+        if track.kind != Track.Kind.REGULAR or not own_order:
+            result.append(track)
+            continue
+        start = rank[own_order[0]]
+        before = frozenset(
+            e
+            for other in tracks
+            if other.kind == Track.Kind.REGULAR and other is not track
+            for e in other.events
+            if rank[e] < start and e not in opening and e not in track.events
+        )
+        result.append(replace(track, before_start=before))
+    return tuple(result)
+
+
+def _chronological_ids(ids: list[int]) -> list[int]:
+    unique = list(dict.fromkeys(ids))
+    ordered = (
+        Entry.objects.filter(pk__in=unique)
+        .order_by(*chronological(), "pk")
+        .values_list("pk", flat=True)
+    )
+    return list(ordered)
 
 
 def read_entry_ids(user: User) -> set[int]:

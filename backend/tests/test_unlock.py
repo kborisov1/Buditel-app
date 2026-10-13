@@ -12,6 +12,7 @@ from apps.progress.unlock import (
     UnlockGraph,
     is_unlocked,
     load_graph,
+    open_track_ids,
     unlocked_entry_ids,
     unlocked_ids,
 )
@@ -100,6 +101,36 @@ def test_opening_event_in_finale_follows_opening_order() -> None:
     g = graph(TrackOrder(OPENING, (1, 2)), TrackOrder(FINALE, (2, 90)))
     assert unlocked_ids(g, {1}) == {1, 2}
     assert unlocked_ids(g, {1, 2}) == {1, 2, 90}
+
+
+def test_regular_track_waits_for_earlier_events_of_other_tracks() -> None:
+    # Scope 3.2: Church (first event 1840) opens once the Education events dated before it are read,
+    # while Education goes on in parallel.
+    g = graph(
+        TrackOrder(OPENING, (1,)),
+        TrackOrder(REGULAR, (10, 11, 12)),
+        TrackOrder(REGULAR, (20,), before_start=frozenset({10, 11})),
+    )
+    assert unlocked_ids(g, {1}) == {1, 10}
+    assert unlocked_ids(g, {1, 10}) == {1, 10, 11}
+    assert unlocked_ids(g, {1, 10, 11}) == {1, 10, 11, 12, 20}
+
+
+def test_regular_track_with_nothing_earlier_opens_after_opening_track() -> None:
+    g = graph(TrackOrder(OPENING, (1,)), TrackOrder(REGULAR, (10,)))
+    assert unlocked_ids(g, set()) == {1}
+    assert unlocked_ids(g, {1}) == {1, 10}
+
+
+def test_open_track_ids() -> None:
+    g = graph(
+        TrackOrder(OPENING, (1,), track_id=1),
+        TrackOrder(REGULAR, (10, 11), track_id=2),
+        TrackOrder(REGULAR, (20,), track_id=3, before_start=frozenset({10})),
+    )
+    assert open_track_ids(g, set()) == {1}
+    assert open_track_ids(g, {1}) == {1, 2}
+    assert open_track_ids(g, {1, 10}) == {1, 2, 3}
 
 
 def test_gate_needs_all_required_events() -> None:
@@ -240,6 +271,30 @@ def test_load_graph_breaks_full_ties_by_title(opening: Track) -> None:
         TrackEntry.objects.create(track=opening, entry=entry)
     (track,) = load_graph().tracks
     assert track == TrackOrder(OPENING, (a.pk, b.pk))
+
+
+def test_load_graph_lists_earlier_events_of_other_regular_tracks(opening: Track) -> None:
+    education = Track.objects.get(name="Просвета и култура")
+    church = Track.objects.get(name="Църковна борба")
+    liberation = Track.objects.get(name="Освободителна борба")
+    awakening = _dated("awakening", date(1790, 1, 1))
+    school = _dated("school", date(1835, 1, 1))
+    school_late = _dated("school-late", date(1850, 1, 1))
+    council = _dated("council", date(1840, 1, 1))
+    uprising = _dated("uprising", date(1860, 1, 1))
+    TrackEntry.objects.create(track=opening, entry=awakening)
+    for track, entry in [
+        (education, school),
+        (education, school_late),
+        (church, council),
+        (liberation, uprising),
+    ]:
+        TrackEntry.objects.create(track=track, entry=entry)
+    by_track = {t.track_id: t for t in load_graph().tracks}
+    assert by_track[education.pk].before_start == frozenset()
+    assert by_track[church.pk].before_start == {school.pk}
+    # The Education event dated 1850 comes before 1860, the Church one too.
+    assert by_track[liberation.pk].before_start == {school.pk, school_late.pk, council.pk}
 
 
 def test_load_graph_reads_finale_setting(db: None) -> None:

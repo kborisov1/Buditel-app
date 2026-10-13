@@ -75,11 +75,15 @@ Bands may overlap on the timeline.
 
 ### 3.2 Tracks (themes, based on unlocking)
 Tracks run in parallel. Within each track, events unlock **strictly in order**. That order follows the events' dates (see 2.3); the author does not set it by hand. Every event has a date, so every event in a track has a place in that order.
-- Awakening (short opening track every user starts with; the other tracks open once all its events are read)
+- Awakening (short opening track every user starts with; the other tracks cannot open before all its events are read)
 - Education and culture
 - Church struggle
 - Liberation struggle
 - **Finale**: covers the 1877-1878 events and unlocks after the user has completed enough of every track.
+
+**When a track opens.** Once the Awakening events are all read, a regular track (Education, Church struggle, Liberation struggle) opens as soon as the user has read **every event of the other regular tracks that is dated before the track's own first event**. A user still working through Education therefore opens Church struggle on reaching the date where it starts, and can then work in both tracks side by side. A track whose first event has nothing earlier in the other regular tracks opens as soon as Awakening is read.
+
+Each track is linked to one phase band (3.1), which the timeline draws behind that track's lane (7.2). The author sets the link in the admin.
 
 Tracks are mostly aligned with phases but not identical. An event's **date** decides its phase band on the timeline. Its **track** decides when it unlocks. An event can belong to **several tracks**.
 
@@ -90,7 +94,7 @@ The author can define gate events in the admin panel: an event that unlocks only
 - Event order is strict inside a track.
 - Non-event entries (people, places, institutions, works, concepts) **unlock automatically when a linked event is read**. "Linked" means a structured relation set by the author; a `[[entry-name]]` mention in the body does not count.
 - Locked entries stay visible in lists and on the timeline with minimal information:
-  - Timeline: title and date. Importance and date certainty are also sent, but only to decide the zoom level at which the event appears and how its date is written.
+  - Timeline: title and date. Importance and date certainty are also sent, but only to decide the zoom level at which the event appears and how its date is written. The event's track membership is sent too, only to place its dot on the right lane.
   - Lists: title only.
   - Related sidebar: title only.
 - Locked entries cannot be read.
@@ -203,11 +207,15 @@ A few "at a glance" panels:
 
 Primary action: one **"Start today's session"** button that builds a queue: due reviews first, then the next entry on the user's tracks, with the older-event check inserted after every third entry. The next entries are those already marked "Finished reading" but not yet passed, then unlocked unread events in timeline order (date, then same-year order). Secondary shortcuts: **Review only, Continue reading, Practice.**
 
+The session can also be started for **one track** from the timeline (7.2). The entries are then drawn only from that track's events and the entries linked to them. Due reviews and older-event checks still come from everything the user has read.
+
 ### 7.2 Timeline
 - One continuous horizontal line from 1762 to 1878, navigated by **zooming in and out** (not horizontal scrolling).
 - **Events only** are shown.
+- **One lane per track** (Awakening, Education and culture, Church struggle, Liberation struggle, Finale), so overlapping phases never share a line. An event appears on the lane of each track it belongs to; an event in no track gets a lane of its own. The track's phase band (3.1) is drawn behind its lane, with the phase name and years. Tracks the user cannot start yet are labelled as locked.
+- **Focus mode.** On a track the user can start, a **Focus** button fades the other lanes, zooms to that track's phase range (or to its events when it has no phase) and offers **"Session in this track"** (7.1). **Show all tracks** leaves focus. Locked tracks cannot be focused.
 - Events have 3 importance levels (**major, notable, minor**), set by the author. Every event always shows as a dot. Major events also show their title at every zoom level; notable and minor events get their title once the user zooms in (notable first, then minor).
-- Colored phase bands (see 3.1), which may overlap.
+- Colored phase bands (see 3.1), one behind each lane. They may overlap in time but never share a lane.
 - Locked events appear with title and date only.
 - **Clicking an event dot opens a pop-up** anchored to that dot, so the timeline stays visible. Pop-up contents: title, dates, short summary, and a button to open the detailed entry page, plus a button to take the quiz (the quiz button becomes available only once "Finished reading" has been clicked on that entry). Locked events show only title and date in the pop-up. The pop-up closes with its close button or by clicking empty space on the timeline; clicking another dot moves it to that event. While the user zooms or pans, it stays attached to its dot and hides when the dot leaves the view.
 

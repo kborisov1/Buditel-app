@@ -205,6 +205,14 @@ class Track(models.Model):
     name = models.CharField(max_length=100)
     kind = models.CharField(max_length=16, choices=Kind.choices, default=Kind.REGULAR)
     position = models.PositiveSmallIntegerField(unique=True, help_text="Display order.")
+    phase = models.ForeignKey(
+        Phase,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="tracks",
+        help_text="The phase band drawn behind this track's lane on the timeline.",
+    )
 
     class Meta:
         ordering = ["position"]

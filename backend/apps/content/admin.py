@@ -190,7 +190,7 @@ class TrackEntryInline(admin.TabularInline):  # type: ignore[type-arg]
 
 @admin.register(Track)
 class TrackAdmin(admin.ModelAdmin):  # type: ignore[type-arg]
-    list_display = ["name", "kind", "position", "event_count"]
+    list_display = ["name", "kind", "phase", "position", "event_count"]
     inlines = [TrackEntryInline]
 
     def get_queryset(self, request: HttpRequest) -> QuerySet[Track]:

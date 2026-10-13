@@ -80,21 +80,18 @@ def test_sample_unlock_starts_with_awakening_track() -> None:
 
 
 @pytest.mark.django_db
-def test_sample_unlock_opens_other_tracks_after_awakening() -> None:
+def test_sample_unlock_opens_tracks_in_date_order_after_awakening() -> None:
     call_command("loaddata", "sample", verbosity=0)
     graph = load_graph()
 
-    # Scope 3.2: the other tracks open once all Awakening events are read. Each track then
-    # opens with its first event, and later events stay locked until the one before is read.
+    # Scope 3.2: after Awakening, a track opens once every earlier-dated event of the other
+    # tracks is read. The sample's Church track starts in 1767, before any other track, so it
+    # is the only one that opens now; Liberation (1774) waits for that 1767 event.
     awakening = {
         _id("napisvane-na-istoriya-slavyanoblgarska"),
         _id("nedelnik-sofronii"),
     }
-    first_events = {
-        _id("svetsko-uchilishte-gabrovo"),
-        _id("ohridska-arhiepiskopiya-ukinata"),
-        _id("kyuchuk-kaynardzhiyski-mir"),
-    }
+    first_events = {_id("ohridska-arhiepiskopiya-ukinata")}
     # Scope 3.4: the people linked to the read Awakening events unlock with them.
     awakening_people = {
         _id("paisiy-hilendarski"),

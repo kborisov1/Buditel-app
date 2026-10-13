@@ -222,7 +222,7 @@ class Track(models.Model):
 
 
 class TrackEntry(models.Model):
-    """Track membership. The order within a track follows the event's date (scope 3.2)."""
+    """Track membership: one track per event. Order follows the event date (scope 3.2)."""
 
     track = models.ForeignKey(Track, on_delete=models.CASCADE, related_name="items")
     entry = models.ForeignKey(
@@ -237,7 +237,7 @@ class TrackEntry(models.Model):
         verbose_name = "track event"
         ordering = ["track", *chronological("entry__"), "entry_id"]
         constraints = [
-            models.UniqueConstraint(fields=["track", "entry"], name="unique_track_entry"),
+            models.UniqueConstraint(fields=["entry"], name="unique_entry_single_track"),
         ]
 
     def __str__(self) -> str:

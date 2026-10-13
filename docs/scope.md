@@ -32,7 +32,7 @@ Other types may be added later.
 
 ### 2.2 Entry structure
 - Title, type, short summary, full body text (Markdown).
-- Date with certainty flag (see 2.3), region, theme/track membership, importance level (events only).
+- Date with certainty flag (see 2.3), region, theme, track membership (at most one track), importance level (events only).
 - Links to other entries via `[[entry-name]]` syntax in the body, plus structured relations.
 - Images (portraits, historical documents; sourced from public domain or the owner's own material).
 - Sources/citations per entry (users can see where facts came from).
@@ -81,7 +81,7 @@ Tracks run in parallel. Within each track, events unlock **strictly in order**. 
 - Liberation struggle
 - **Finale**: covers the 1877-1878 events and unlocks after the user has completed enough of every track.
 
-Tracks are mostly aligned with phases but not identical. An event's **date** decides its phase band on the timeline. Its **track** decides when it unlocks. An event can belong to **several tracks**.
+Tracks are mostly aligned with phases but not identical. An event's **date** decides its phase band on the timeline. Its **track** decides when it unlocks. An event belongs to **at most one track**.
 
 ### 3.3 Gate events
 The author can define gate events in the admin panel: an event that unlocks only after specified other events (possibly across tracks) are read and passed. Example: the April Uprising depends on progress in more than one track.

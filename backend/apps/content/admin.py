@@ -65,8 +65,9 @@ class EntryTrackInline(admin.TabularInline):  # type: ignore[type-arg]
     model = TrackEntry
     fields = ["track"]
     extra = 0
+    max_num = 1
     verbose_name = "track"
-    verbose_name_plural = "tracks (order within a track follows the event date)"
+    verbose_name_plural = "track (one per event; order follows the event date)"
 
 
 class GateInline(admin.TabularInline):  # type: ignore[type-arg]

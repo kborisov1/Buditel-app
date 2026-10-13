@@ -66,13 +66,15 @@ def test_track_accepts_events_only() -> None:
 
 
 @pytest.mark.django_db
-def test_track_events_unique() -> None:
-    track = Track.objects.get(kind=Track.Kind.OPENING)
-    first = _entry("a")
-    TrackEntry.objects.create(track=track, entry=first)
-    TrackEntry(track=track, entry=_entry("b")).full_clean()
+def test_event_in_only_one_track() -> None:
+    first, second = Track.objects.order_by("position")[:2]
+    event = _entry("a")
+    TrackEntry.objects.create(track=first, entry=event)
+    TrackEntry(track=second, entry=_entry("b")).full_clean()
     with pytest.raises(ValidationError):
-        TrackEntry(track=track, entry=first).full_clean()
+        TrackEntry(track=second, entry=event).full_clean()
+    with pytest.raises(ValidationError):
+        TrackEntry(track=first, entry=event).full_clean()
 
 
 @pytest.mark.django_db

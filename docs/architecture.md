@@ -102,7 +102,7 @@ Business rules live in plain service modules inside each app (for example `progr
 - `Source`: citations per entry.
 - `Image`: file (validated with Pillow, width and height recorded), position (unique per entry), caption, credit, license note. Images form an ordered gallery, and the first one is the main image. The body can also place an image inline with `![[position]]`.
 - `Phase`: name, start and end dates (timeline bands, may overlap). An event's phase is derived from its date, not stored.
-- `Track`: name, kind (`regular`, `opening`, `finale`; at most one opening and one finale), position. `TrackEntry`: track, event (unique per track). There is no stored position: events in a track are ordered like the timeline (year, `year_order`, date, title, then ID), through `content.models.chronological()`. An event can appear in several tracks. Only events can be in tracks or gates; an entry in a track or gate cannot change its type.
+- `Track`: name, kind (`regular`, `opening`, `finale`; at most one opening and one finale), position. `TrackEntry`: track, event (the event is unique: at most one track per event). There is no stored position: events in a track are ordered like the timeline (year, `year_order`, date, title, then ID), through `content.models.chronological()`. Only events can be in tracks or gates; an entry in a track or gate cannot change its type.
 - `GateRequirement`: event, required event. An event with one or more requirements is a gate event: it unlocks only after all of them are read and passed. A separate `Gate` table is not needed.
 - `Question`: entry FK, type (`multiple_choice`, `true_false`, `date_ordering`, `fill_blank`), prompt, `payload` JSONB, explanation. Payload shape depends on type and is validated with Pydantic models on save:
   - `multiple_choice`: `{"options": [2-6 unique strings], "correct": index}`, exactly one correct option.
@@ -122,7 +122,7 @@ Business rules live in plain service modules inside each app (for example `progr
 - `DailyChallenge` and `DailyChallengeQuestion`: user, local date, completion time; per question the position, answer, result and answer time.
 - `ActivityLog`: user (nullable), timestamp, category (user, content, error), event type, JSONB details. Indexed on user, timestamp and type.
 
-**Indexes to add from the start.** `EntryProgress(user, entry)` unique, `QuestionState(user, due_date)`, `XpEvent(user, local_date)`, `TrackEntry(track, entry)` unique, a trigram index on `Entry.title`.
+**Indexes to add from the start.** `EntryProgress(user, entry)` unique, `QuestionState(user, due_date)`, `XpEvent(user, local_date)`, `TrackEntry(entry)` unique, a trigram index on `Entry.title`.
 
 **Why a ledger for XP.** XP values and the level curve are explicitly "starting values" (scope header). With a ledger plus derived totals, retuning is a code or setting change, not a data migration.
 
@@ -134,7 +134,7 @@ All rules run on the server. The client only displays results.
 
 ### 6.1 Unlocking (scope 3)
 
-- An **event** is unlocked when, for every track it belongs to, the previous event in that track is `read`, and all its gate requirements are `read`. For multi-track events, all tracks must allow it.
+- An **event** is unlocked when, the previous event in its track (if any) is `read`, and all its gate requirements are `read`.
 - An event in the **opening** track follows the opening track's order only. Every other track skips it when working out "the previous event", because those tracks open only after all opening events are read. Otherwise an opening event that also sits in another track would wait for the opening track to finish, which waits for that event: a deadlock.
 - The first event of every non-opening track additionally requires all events of the **opening** track (Awakening) to be `read`.
 - A **non-event entry** is unlocked once any linked event is `read`.
@@ -278,7 +278,7 @@ Backups matter even locally, because the authored content is the project's main 
 
 ## 13. Testing
 
-- **pytest** for the rules engine, which is where silent bugs would hurt: unlock graph (strict order, gates, multi-track, finale threshold, rounding up), SRS transitions, streak and freeze edge cases (two missed days, cap at 2, time zone rollover), XP ledger and level formula, and quiz draw and grading. These tests use the clock service so time is controlled.
+- **pytest** for the rules engine, which is where silent bugs would hurt: unlock graph (strict order, gates, finale threshold, rounding up), SRS transitions, streak and freeze edge cases (two missed days, cap at 2, time zone rollover), XP ledger and level formula, and quiz draw and grading. These tests use the clock service so time is controlled.
 - **API tests** confirm that locked entries never expose a body and that correct answers are absent from failed attempts.
 - **Playwright** for a few end-to-end flows: log in, read, pass a quiz, see the next entry unlock, and see the streak update after a date shift.
 - Formatting and linting: Ruff and mypy on the backend, ESLint and TypeScript strict mode on the frontend.
